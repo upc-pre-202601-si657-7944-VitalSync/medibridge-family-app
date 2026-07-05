@@ -1,0 +1,28 @@
+export const colors = {
+  primary: '#2563eb',
+  primaryDark: '#1d4ed8',
+  primaryLight: '#dbeafe',
+  sidebar: '#0f172a',
+  background: '#f8fafc',
+  surface: '#ffffff',
+  surfaceMuted: '#f1f5f9',
+  textPrimary: '#0f172a',
+  textSecondary: '#475569',
+  textMuted: '#94a3b8',
+  border: '#cbd5e1',
+  borderLight: '#e2e8f0',
+  inputBg: '#f8fafc',
+  error: '#dc2626',
+  errorBg: '#fef2f2',
+  errorBorder: '#fecaca',
+  success: '#166534',
+  successBg: '#f0fdf4',
+  successBorder: '#bbf7d0',
+  warning: '#d97706',
+  warningBg: '#fffbeb',
+  gradientStart: '#2563eb',
+  gradientMiddle: '#1d4ed8',
+  gradientEnd: '#0f766e',
+} as const;
+
+export type ColorKey = keyof typeof colors;
