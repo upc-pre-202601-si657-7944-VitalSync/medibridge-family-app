@@ -79,5 +79,9 @@ function RouteGuard() {
     return <Redirect href="/(auth)/setup" />;
   }
 
+  if (accessToken && inSetup && setupComplete) {
+    return <Redirect href="/(family)/dashboard" />;
+  }
+
   return null;
 }

@@ -14,6 +14,7 @@ interface SetupStep {
   icon: keyof typeof Feather.glyphMap;
   route: string;
   completed: boolean;
+  required?: boolean;
 }
 
 export function SetupStepper() {
@@ -31,6 +32,7 @@ export function SetupStepper() {
       icon: 'user',
       route: '/(family)/profile',
       completed: hasFamilyProfile,
+      required: true,
     },
     {
       id: 2,
@@ -39,6 +41,7 @@ export function SetupStepper() {
       icon: 'heart',
       route: '/(family)/patient',
       completed: hasPatient,
+      required: true,
     },
     {
       id: 3,
@@ -47,6 +50,7 @@ export function SetupStepper() {
       icon: 'link',
       route: '/(family)/patient',
       completed: hasPatient,
+      required: true,
     },
     {
       id: 4,
@@ -55,6 +59,7 @@ export function SetupStepper() {
       icon: 'activity',
       route: '/(family)/doctor',
       completed: false,
+      required: false,
     },
   ];
 
@@ -66,7 +71,7 @@ export function SetupStepper() {
     router.replace('/(family)/dashboard' as any);
   };
 
-  const allCompleted = steps.every((step) => step.completed);
+  const allCompleted = steps.every((step) => step.required === false || step.completed);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
