@@ -1,0 +1,295 @@
+{
+  "auth": {
+    "login": {
+      "title": "Inicia sesión en tu cuenta",
+      "eyebrow": "Bienvenido de nuevo",
+      "username": "Usuario",
+      "password": "Contraseña",
+      "submit": "Iniciar sesión",
+      "submitting": "Ingresando …",
+      "noAccount": "¿No tienes una cuenta?",
+      "createAccount": "Crear una",
+      "registeredSuccess": "Cuenta creada exitosamente. Inicia sesión.",
+      "placeholderUsername": "Ingresa tu usuario",
+      "placeholderPassword": "Ingresa tu contraseña"
+    },
+    "register": {
+      "title": "Crea tu cuenta",
+      "subtitle": "Únete a MediBridge hoy",
+      "username": "Usuario",
+      "password": "Contraseña",
+      "role": "Rol",
+      "submit": "Registrarme",
+      "submitting": "Creando cuenta …",
+      "hasAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Inicia sesión",
+      "roleHint": "Selecciona el tipo de cuenta con el que querés ingresar a la plataforma.",
+      "placeholderUsername": "Elige un usuario",
+      "placeholderPassword": "Elige una contraseña",
+      "segments": {
+        "familySupportNetwork": "Red de Apoyo Familiar",
+        "careStaff": "Personal de Cuidado"
+      },
+      "roles": {
+        "PATIENT": "Paciente",
+        "DOCTOR": "Doctor",
+        "FAMILY_MEMBER": "Familiar",
+        "CAREGIVER": "Cuidador"
+      }
+    },
+    "brand": {
+      "headline": "Plataforma Clínica",
+      "description": "Acceso seguro y cumpliente a tu panel de gestión de atención médica.",
+      "familyTitle": "Red de Apoyo Familiar",
+      "familyDesc": "Coordina cuidados, comparte actualizaciones y mantente conectado con la evolución clínica de tu ser querido."
+    },
+    "errors": {
+      "usernameRequired": "El usuario es requerido.",
+      "usernameMin": "El usuario debe tener al menos 3 caracteres.",
+      "passwordRequired": "La contraseña es requerida.",
+      "passwordMin": "La contraseña debe tener al menos 4 caracteres.",
+      "roleRequired": "El rol es requerido.",
+      "loginFailed": "Error al iniciar sesión. Verifica tus credenciales.",
+      "registerFailed": "Error al registrarte. Intenta nuevamente."
+    }
+  },
+  "profiles": {
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "familyProfile": "Mi Perfil",
+      "patient": "Mi Paciente",
+      "doctor": "Médico",
+      "careTeam": "Equipo de Cuidado",
+      "appointments": "Citas",
+      "medication": "Medicación",
+      "monitoring": "Monitoreo",
+      "messages": "Mensajes",
+      "reports": "Reportes",
+      "subscription": "Suscripción",
+      "invoices": "Facturas",
+      "settings": "Configuración"
+    },
+    "placeholder": {
+      "comingSoon": "Esta sección estará disponible próximamente."
+    },
+    "family": {
+      "title": "Mi Perfil de Familiar",
+      "fullName": "Nombre completo",
+      "submit": "Guardar Perfil",
+      "created": "Tu perfil de familiar ya fue registrado."
+    },
+    "patient": {
+      "title": "Mi Paciente",
+      "description": "Información del paciente vinculado.",
+      "loading": "Cargando información del paciente...",
+      "empty": "Aún no hay un paciente vinculado para mostrar.",
+      "profileRequired": "Primero debes crear tu perfil de familiar.",
+      "manualLinkLabel": "Ingresa el ID del paciente para vincularlo manualmente",
+      "linkSubmit": "Vincular paciente"
+    },
+    "doctor": {
+      "title": "Médico Tratante",
+      "description": "Información del médico asignado.",
+      "loading": "Cargando información del médico...",
+      "empty": "Aún no hay un médico asignado para mostrar.",
+      "backendGap": "Aún no podemos resolver automáticamente el médico tratante desde el backend actual."
+    },
+    "common": {
+      "saving": "Guardando..."
+    },
+    "errors": {
+      "createFailed": "No se pudo crear el perfil. Intenta nuevamente.",
+      "patientLoadFailed": "No se pudo cargar la información del paciente.",
+      "patientLinkFailed": "No se pudo vincular el paciente con tu perfil.",
+      "doctorLoadFailed": "No se pudo cargar la información del médico."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "loading": "Cargando datos del dashboard...",
+    "appointments": "Citas",
+    "medications": "Medicamentos",
+    "observations": "Observaciones",
+    "messages": "Mensajes sin leer",
+    "viewAll": "Ver todos"
+  },
+  "appointments": {
+    "title": "Citas",
+    "empty": "No hay citas programadas.",
+    "schedule": "Agendar cita",
+    "startsAt": "Fecha y hora",
+    "duration": "Duración (minutos)",
+    "reason": "Motivo",
+    "submit": "Agendar",
+    "type": {
+      "FAMILY_VISIT": "Visita Familiar",
+      "MEDICAL": "Cita Médica"
+    },
+    "status": {
+      "SCHEDULED": "Programada",
+      "IN_PROGRESS": "En curso",
+      "COMPLETED": "Completada",
+      "CANCELLED": "Cancelada"
+    }
+  },
+  "medication": {
+    "title": "Medicación",
+    "empty": "No hay medicamentos registrados.",
+    "dosage": "Dosis",
+    "route": "Vía",
+    "stock": "Stock",
+    "lowStock": "Stock bajo",
+    "expires": "Vence",
+    "unit": {
+      "MG": "mg",
+      "ML": "ml",
+      "TABLET": "comprimido",
+      "CAPSULE": "cápsula",
+      "DROP": "gotas"
+    }
+  },
+  "monitoring": {
+    "title": "Monitoreo de Salud",
+    "empty": "No hay observaciones registradas.",
+    "bloodPressure": "Presión arterial",
+    "temperature": "Temperatura",
+    "painLevel": "Dolor",
+    "emotionalState": "Estado emocional",
+    "notes": "Notas clínicas",
+    "mmHg": "mmHg",
+    "celsius": "°C",
+    "outOf10": "/10"
+  },
+  "messages": {
+    "title": "Mensajes",
+    "empty": "No hay notificaciones.",
+    "unread": "No leído",
+    "markRead": "Marcar como leído",
+    "type": {
+      "APPOINTMENT": "Cita",
+      "MEDICATION": "Medicación",
+      "ALERT": "Alerta",
+      "GENERAL": "General"
+    }
+  },
+  "reports": {
+    "title": "Reportes",
+    "empty": "No hay reportes generados.",
+    "generate": "Generar reporte",
+    "type": "Tipo de reporte",
+    "generateBtn": "Generar",
+    "types": {
+      "VITAL_SIGNS": "Signos Vitales",
+      "MEDICATION": "Medicación",
+      "FULL_CLINICAL": "Clínico Completo"
+    },
+    "period": "Período",
+    "summary": "Resumen"
+  },
+  "payments": {
+    "title": "Pagos",
+    "noSubscription": "No hay suscripción activa.",
+    "subscription": "Suscripción",
+    "plan": "Plan",
+    "status": "Estado",
+    "expires": "Vence",
+    "billingCycle": "Ciclo",
+    "invoices": "Facturas",
+    "emptyInvoices": "No hay facturas para mostrar.",
+    "amount": "Monto",
+    "date": "Fecha",
+    "commercialLine": {
+      "FAMILY": "Familiar",
+      "INSTITUTION": "Institución"
+    }
+  },
+  "settings": {
+    "title": "Configuración",
+    "account": "Cuenta",
+    "profile": "Mi Perfil",
+    "profileDesc": "Editar información personal",
+    "careTeam": "Equipo de Cuidado",
+    "careTeamDesc": "Ver doctores y familiares",
+    "subscription": "Suscripción",
+    "subscriptionStatus": "Estado de Suscripción",
+    "subscriptionStatusDesc": "Ver plan y detalles",
+    "invoices": "Historial de Facturas",
+    "invoicesDesc": "Ver facturas y pagos",
+    "preferences": "Preferencias",
+    "language": "Idioma",
+    "languageDesc": "Español / English",
+    "notifications": "Notificaciones",
+    "notificationsDesc": "Gestionar preferencias",
+    "privacy": "Privacidad",
+    "privacyDesc": "Control de datos",
+    "logout": "Cerrar Sesión",
+    "logoutDesc": "Salir de tu cuenta"
+  },
+  "careTeam": {
+    "title": "Equipo de Cuidado",
+    "subtitle": "Personas que participan en el cuidado del paciente",
+    "doctors": "Doctores",
+    "familyMembers": "Familiares",
+    "noDoctors": "No hay doctores asignados",
+    "noFamilyMembers": "No hay familiares vinculados",
+    "doctor": "Doctor",
+    "family": "Familiar"
+  },
+  "subscription": {
+    "title": "Suscripción",
+    "subtitle": "Gestiona tu plan y estado de suscripción",
+    "commercialLine": "Línea Comercial",
+    "price": "Precio",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Fin",
+    "autoRenew": "Renovación Automática",
+    "manage": "Gestionar Suscripción",
+    "manageDesc": "Cambiar plan o cancelar",
+    "noSubscription": "No tienes una suscripción activa",
+    "noSubscriptionDesc": "Suscríbete para acceder a todas las funciones premium",
+    "viewPlans": "Ver Planes"
+  },
+  "invoices": {
+    "title": "Historial de Facturas",
+    "subtitle": "Tus facturas y pagos realizados",
+    "empty": "No hay facturas para mostrar",
+    "invoiceId": "Factura",
+    "amount": "Monto",
+    "issuedAt": "Fecha de Emisión",
+    "paidAt": "Fecha de Pago",
+    "downloadPdf": "Descargar PDF"
+  },
+  "setup": {
+    "title": "Configuración Inicial",
+    "subtitle": "Completa estos pasos para comenzar a usar la aplicación",
+    "completed": "completados",
+    "finish": "Finalizar Configuración",
+    "step1": {
+      "title": "Crear tu Perfil",
+      "description": "Registra tu información personal como familiar cuidador"
+    },
+    "step2": {
+      "title": "Registrar Paciente",
+      "description": "Agrega la información del paciente que vas a cuidar"
+    },
+    "step3": {
+      "title": "Vincular Familiar",
+      "description": "Conecta tu perfil con el paciente registrado"
+    },
+    "step4": {
+      "title": "Asignar Doctor",
+      "description": "Agrega al médico tratante del paciente"
+    }
+  },
+  "common": {
+    "logout": "Cerrar sesión",
+    "loading": "Cargando...",
+    "error": "Error",
+    "retry": "Reintentar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "back": "Volver",
+    "yes": "Sí",
+    "no": "No"
+  }
+}
