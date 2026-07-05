@@ -40,6 +40,5 @@ yarn-error.*
 /ios
 /android
 
-#Docs 
-/docs
+# Docs
 /.atl
