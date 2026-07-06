@@ -1,12 +1,21 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useAppointments } from '../../features/appointments/application/use-appointments';
 import { Card } from './Card';
 import { colors, spacing, radius, fontFamily, fontFamilySemiBold, fontFamilyBold } from '../theme';
 
 export function NextAppointmentCard() {
-  const { nextAppointment, loading } = useAppointments();
+  const { t } = useTranslation();
+  const { nextAppointment, loading, refetch } = useAppointments();
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
 
   if (loading) return null;
 
@@ -16,7 +25,7 @@ export function NextAppointmentCard() {
         <View style={[styles.iconCircle, { backgroundColor: '#ede9fe' }]}>
           <Feather name="calendar" size={20} color="#7c3aed" />
         </View>
-        <Text style={styles.title}>Proxima Cita</Text>
+        <Text style={styles.title}>{t('dashboard.nextAppointment')}</Text>
         <TouchableOpacity onPress={() => router.push('/(family)/appointments')}>
           <Feather name="chevron-right" size={18} color={colors.textMuted} />
         </TouchableOpacity>
@@ -38,13 +47,13 @@ export function NextAppointmentCard() {
             </Text>
             <View style={styles.typePill}>
               <Text style={styles.typeText}>
-                {nextAppointment.appointmentType === 'FAMILY_VISIT' ? 'Visita Familiar' : 'Cita Medica'}
+                {nextAppointment.appointmentType === 'FAMILY_VISIT' ? t('appointments.type.FAMILY_VISIT') : t('appointments.type.MEDICAL')}
               </Text>
             </View>
           </View>
         </View>
       ) : (
-        <Text style={styles.empty}>No hay citas programadas</Text>
+        <Text style={styles.empty}>{t('dashboard.noUpcomingAppointments')}</Text>
       )}
     </Card>
   );

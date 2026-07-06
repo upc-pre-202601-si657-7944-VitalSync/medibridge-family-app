@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
 import { Card, LoadingSpinner, PatientHeader, HealthSummaryCard, NextAppointmentCard, TodayMedicationsCard, LowStockCard, ActiveAlertsCard } from '../../src/shared/components';
@@ -69,6 +69,12 @@ export default function DashboardPage() {
   }, [currentUser?.id]);
 
   useEffect(() => { loadMetrics(); }, [loadMetrics]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadMetrics();
+    }, [loadMetrics]),
+  );
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);

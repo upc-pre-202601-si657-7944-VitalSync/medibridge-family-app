@@ -5,8 +5,15 @@ const FAMILY_MEMBER_ID_KEY = 'profiles-family-member-profile-id';
 const FAMILY_MEMBER_PROFILE_KEY = 'profiles-family-member-profile';
 const LINKED_PATIENT_ID_KEY = 'profiles-linked-patient-id';
 const SETUP_FINISHED_KEY = 'profiles-setup-finished';
+const REFERENCE_DOCTOR_PROFILE_KEY = 'profiles-reference-doctor-profile';
 
 export interface StoredFamilyMemberProfile {
+  readonly id: number;
+  readonly userId: number;
+  readonly fullName: string;
+}
+
+export interface StoredDoctorProfile {
   readonly id: number;
   readonly userId: number;
   readonly fullName: string;
@@ -16,6 +23,16 @@ function isStoredFamilyMemberProfile(value: unknown): value is StoredFamilyMembe
   if (!value || typeof value !== 'object') return false;
 
   const profile = value as Partial<StoredFamilyMemberProfile>;
+  return Number.isFinite(profile.id)
+    && Number.isFinite(profile.userId)
+    && typeof profile.fullName === 'string'
+    && profile.fullName.trim().length > 0;
+}
+
+function isStoredDoctorProfile(value: unknown): value is StoredDoctorProfile {
+  if (!value || typeof value !== 'object') return false;
+
+  const profile = value as Partial<StoredDoctorProfile>;
   return Number.isFinite(profile.id)
     && Number.isFinite(profile.userId)
     && typeof profile.fullName === 'string'
@@ -42,6 +59,17 @@ function parseFamilyProfile(raw: string | undefined): StoredFamilyMemberProfile 
   try {
     const parsed = JSON.parse(raw);
     return isStoredFamilyMemberProfile(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function parseDoctorProfile(raw: string | undefined): StoredDoctorProfile | null {
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    return isStoredDoctorProfile(parsed) ? parsed : null;
   } catch {
     return null;
   }
@@ -130,10 +158,17 @@ export const profilesStore = {
 
     appStorage.remove(scopedKey(SETUP_FINISHED_KEY));
   },
+  getReferenceDoctor(): StoredDoctorProfile | null {
+    return parseDoctorProfile(appStorage.get(scopedKey(REFERENCE_DOCTOR_PROFILE_KEY)));
+  },
+  setReferenceDoctor(profile: StoredDoctorProfile): void {
+    appStorage.set(scopedKey(REFERENCE_DOCTOR_PROFILE_KEY), JSON.stringify(profile));
+  },
   clear(): void {
     appStorage.remove(scopedKey(FAMILY_MEMBER_ID_KEY));
     appStorage.remove(scopedKey(FAMILY_MEMBER_PROFILE_KEY));
     appStorage.remove(scopedKey(LINKED_PATIENT_ID_KEY));
     appStorage.remove(scopedKey(SETUP_FINISHED_KEY));
+    appStorage.remove(scopedKey(REFERENCE_DOCTOR_PROFILE_KEY));
   },
 };

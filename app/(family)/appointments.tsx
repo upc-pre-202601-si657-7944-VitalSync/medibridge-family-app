@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, M
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
 import axios from 'axios';
-import { Button, TextInput, Card, Badge, LoadingSpinner, EmptyState, TabBar } from '../../src/shared/components';
+import { Button, TextInput, Card, Badge, LoadingSpinner, EmptyState, TabBar, Select } from '../../src/shared/components';
 import { appointmentsApi } from '../../src/core/api/services';
 import { profilesStore } from '../../src/core/storage/profiles-store';
 import { useAppointments, useScheduleFamilyVisit } from '../../src/features/appointments/application/use-appointments';
@@ -35,6 +35,14 @@ export default function AppointmentsPage() {
       case 'family': return familyVisits;
       case 'medical': return medicalAppointments;
       default: return appointments;
+    }
+  };
+
+  const getEmptyMessage = () => {
+    switch (activeTab) {
+      case 'family': return t('appointments.emptyFamily');
+      case 'medical': return t('appointments.emptyMedical');
+      default: return t('appointments.empty');
     }
   };
 
@@ -84,7 +92,7 @@ export default function AppointmentsPage() {
         refreshing={refreshing}
         onRefresh={onRefresh}
         onAppointmentPress={(apt) => setSelectedAppointment(apt)}
-        emptyMessage={t('appointments.empty')}
+        emptyMessage={getEmptyMessage()}
       />
 
       <ScheduleAppointmentModal
@@ -160,20 +168,66 @@ function ScheduleAppointmentModal({ visible, onClose, onSaved }: { visible: bool
   const { t } = useTranslation();
   const { schedule, submitting } = useScheduleFamilyVisit();
 
-  const [startsAt, setStartsAt] = useState('');
+  const [appointmentType, setAppointmentType] = useState<'FAMILY_VISIT' | 'MEDICAL'>('FAMILY_VISIT');
+  const [appointmentDate, setAppointmentDate] = useState('');
+  const [appointmentTime, setAppointmentTime] = useState('');
   const [duration, setDuration] = useState('60');
   const [reason, setReason] = useState('');
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const appointmentTypeOptions = [
+    { value: 'FAMILY_VISIT', label: t('appointments.type.FAMILY_VISIT') },
+    { value: 'MEDICAL', label: t('appointments.type.MEDICAL') },
+  ];
 
   const handleSchedule = async () => {
     const patientId = profilesStore.getLinkedPatientId();
     const familyMemberId = profilesStore.getFamilyMemberId();
-    if (!patientId || !familyMemberId) return;
+    const startsAt = appointmentDate && appointmentTime ? `${appointmentDate}T${appointmentTime}:00` : '';
+    if (!patientId || !startsAt) return;
+
+    setError(null);
+
+    if (appointmentType === 'MEDICAL') {
+      const doctor = profilesStore.getReferenceDoctor();
+      if (!doctor) {
+        setError(t('appointments.form.medicalRequiresDoctor'));
+        return;
+      }
+
+      try {
+        await appointmentsApi.post('/appointments/medical', {
+          patientId,
+          doctorProfileId: doctor.id,
+          startsAt,
+          durationInMinutes: Number(duration),
+          reason,
+        });
+        setSuccess(true);
+        setTimeout(() => {
+          setAppointmentDate(''); setAppointmentTime(''); setDuration('60'); setReason(''); setAppointmentType('FAMILY_VISIT');
+          setSuccess(false);
+          onSaved();
+        }, 1500);
+        return;
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.response?.status === 403) {
+          setError(t('appointments.form.medicalRequiresAssignment'));
+          return;
+        }
+
+        setError(t('appointments.form.scheduleFailed'));
+        return;
+      }
+    }
+
+    if (!familyMemberId) return;
 
     const result = await schedule({
       patientId,
       familyMemberProfileId: familyMemberId,
-      startsAt: new Date(startsAt).toISOString(),
+      startsAt,
       durationInMinutes: Number(duration),
       reason,
     });
@@ -181,10 +235,12 @@ function ScheduleAppointmentModal({ visible, onClose, onSaved }: { visible: bool
     if (result) {
       setSuccess(true);
       setTimeout(() => {
-        setStartsAt(''); setDuration('60'); setReason('');
+        setAppointmentDate(''); setAppointmentTime(''); setDuration('60'); setReason(''); setAppointmentType('FAMILY_VISIT');
         setSuccess(false);
         onSaved();
       }, 1500);
+    } else {
+      setError(t('appointments.form.scheduleFailed'));
     }
   };
 
@@ -206,11 +262,23 @@ function ScheduleAppointmentModal({ visible, onClose, onSaved }: { visible: bool
             </View>
           ) : (
             <>
+              <Select
+                label={t('appointments.form.appointmentType')}
+                options={appointmentTypeOptions}
+                value={appointmentType}
+                onChange={(value) => setAppointmentType(value as 'FAMILY_VISIT' | 'MEDICAL')}
+              />
               <TextInput
-                label={t('appointments.form.startsAt')}
-                value={startsAt}
-                onChangeText={setStartsAt}
-                placeholder="2026-07-10T14:00"
+                label={t('appointments.form.date')}
+                value={appointmentDate}
+                onChangeText={setAppointmentDate}
+                placeholder="2026-07-10"
+              />
+              <TextInput
+                label={t('appointments.form.time')}
+                value={appointmentTime}
+                onChangeText={setAppointmentTime}
+                placeholder="14:00"
               />
               <TextInput
                 label={t('appointments.form.duration')}
@@ -227,11 +295,12 @@ function ScheduleAppointmentModal({ visible, onClose, onSaved }: { visible: bool
                 multiline
                 numberOfLines={3}
               />
+              {error ? <Text style={modalStyles.errorText}>{error}</Text> : null}
               <Button
                 title={submitting ? t('common.saving') : t('appointments.form.submit')}
                 onPress={handleSchedule}
                 loading={submitting}
-                disabled={!startsAt || !reason}
+                disabled={!appointmentDate || !appointmentTime || !reason}
                 style={modalStyles.submitButton}
               />
             </>
@@ -314,6 +383,7 @@ const modalStyles = StyleSheet.create({
   headerTitle: { fontFamily: fontFamilyBold, fontSize: 18, color: colors.textPrimary },
   content: { padding: spacing.lg },
   submitButton: { marginTop: spacing.xl },
+  errorText: { fontFamily, fontSize: 13, color: colors.error, lineHeight: 18, marginTop: spacing.sm },
   successContainer: { alignItems: 'center', paddingVertical: spacing.xxxl },
   successIcon: { width: 64, height: 64, borderRadius: radius.full, backgroundColor: '#dcfce7', alignItems: 'center', justifyContent: 'center', marginBottom: spacing.lg },
   successTitle: { fontFamily: fontFamilyBold, fontSize: 18, color: '#16a34a', marginBottom: spacing.sm },

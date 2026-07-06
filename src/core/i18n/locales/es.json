@@ -99,11 +99,16 @@
       "linkExistingSubmit": "Vincular existente"
     },
     "doctor": {
-      "title": "Médico Tratante",
-      "description": "Información del médico asignado.",
+      "title": "Médico tratante",
+      "description": "Selecciona el médico que acompañará el seguimiento de la persona vinculada.",
       "loading": "Cargando información del médico...",
-      "empty": "Aún no hay un médico asignado para mostrar.",
-      "backendGap": "Aún no podemos resolver automáticamente el médico tratante desde el backend actual."
+      "empty": "Aún no hay un médico tratante seleccionado.",
+      "backendGap": "Aún no podemos resolver automáticamente el médico tratante desde el backend actual.",
+      "referenceSelected": "Médico seleccionado para el seguimiento familiar",
+      "availableTitle": "Médicos disponibles",
+      "availableDescription": "Elige un médico disponible para asociarlo al seguimiento familiar.",
+      "availableRole": "Médico disponible",
+      "noAvailable": "No encontramos médicos disponibles por el momento."
     },
     "common": {
       "saving": "Guardando..."
@@ -123,11 +128,15 @@
     "observations": "Observaciones",
     "messages": "Mensajes sin leer",
     "quickAccess": "Accesos rápidos",
+    "nextAppointment": "Próxima cita",
+    "noUpcomingAppointments": "No hay próximas citas programadas",
     "viewAll": "Ver todos"
   },
   "appointments": {
     "title": "Citas",
     "empty": "No hay citas programadas.",
+    "emptyFamily": "Aún no hay visitas familiares programadas.",
+    "emptyMedical": "Las citas médicas aparecerán cuando exista una asignación médica confirmada.",
     "schedule": "Agendar cita",
     "upcoming": "Próxima cita",
     "startsAt": "Fecha y hora",
@@ -140,14 +149,20 @@
       "medical": "Médicas"
     },
     "form": {
-      "title": "Agendar visita familiar",
+      "title": "Agendar cita",
+      "appointmentType": "Tipo de cita",
       "startsAt": "Fecha y hora",
+      "date": "Fecha",
+      "time": "Hora",
       "duration": "Duración en minutos",
       "reason": "Motivo",
       "reasonPlaceholder": "Ej. Visita familiar semanal",
-      "submit": "Agendar visita",
+      "submit": "Agendar cita",
       "success": "Cita agendada",
-      "successText": "La visita familiar fue registrada correctamente."
+      "successText": "La cita fue registrada correctamente.",
+      "medicalRequiresDoctor": "Selecciona primero un médico tratante en la sección Médico.",
+      "medicalRequiresAssignment": "Esta cita médica requiere una asignación médica confirmada.",
+      "scheduleFailed": "No se pudo agendar la cita. Verifica los datos e inténtalo nuevamente."
     },
     "detail": {
       "title": "Detalle de cita",
@@ -438,11 +453,13 @@
     "manage": "Gestionar Suscripción",
     "manageDesc": "Cambiar plan o cancelar",
     "noSubscription": "No tienes una suscripción activa",
-    "noSubscriptionDesc": "Suscríbete para acceder a todas las funciones premium",
+    "noSubscriptionDesc": "Elige un plan para acceder a las funciones premium de la red familiar",
     "viewPlans": "Ver Planes",
     "free": "Gratis",
     "checkoutUnavailable": "Checkout no disponible",
-    "checkoutUnavailableDesc": "El backend local no tiene Stripe configurado. Para la demo, se mantiene el plan gratuito hasta activar una clave de prueba.",
+    "checkoutUnavailableDesc": "No pudimos iniciar la activación del plan. Intenta nuevamente en unos minutos.",
+    "activatedTitle": "Plan activado",
+    "activatedDesc": "Tu suscripción ya está activa para esta cuenta.",
     "plans": {
       "free": "Plan Gratuito Familiar",
       "premiumMonthly": "Plan Premium Familiar",

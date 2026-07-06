@@ -100,10 +100,15 @@
     },
     "doctor": {
       "title": "Treating Physician",
-      "description": "Information of the assigned doctor.",
+      "description": "Select the doctor who will support the linked person's follow-up.",
       "loading": "Loading doctor information...",
-      "empty": "There is no assigned doctor to display yet.",
-      "backendGap": "We still cannot resolve the treating physician automatically from the current backend."
+      "empty": "There is no treating physician selected yet.",
+      "backendGap": "We still cannot resolve the treating physician automatically from the current backend.",
+      "referenceSelected": "Selected doctor for family follow-up",
+      "availableTitle": "Available doctors",
+      "availableDescription": "Choose an available doctor to associate with the family follow-up.",
+      "availableRole": "Available doctor",
+      "noAvailable": "No available doctors were found at this time."
     },
     "common": {
       "saving": "Saving..."
@@ -123,11 +128,15 @@
     "observations": "Observations",
     "messages": "Unread messages",
     "quickAccess": "Quick access",
+    "nextAppointment": "Next appointment",
+    "noUpcomingAppointments": "No upcoming appointments scheduled",
     "viewAll": "View all"
   },
   "appointments": {
     "title": "Appointments",
     "empty": "No scheduled appointments.",
+    "emptyFamily": "There are no family visits scheduled yet.",
+    "emptyMedical": "Medical appointments will appear once a doctor assignment is confirmed.",
     "schedule": "Schedule appointment",
     "upcoming": "Upcoming appointment",
     "startsAt": "Date and time",
@@ -140,14 +149,20 @@
       "medical": "Medical"
     },
     "form": {
-      "title": "Schedule family visit",
+      "title": "Schedule appointment",
+      "appointmentType": "Appointment type",
       "startsAt": "Date and time",
+      "date": "Date",
+      "time": "Time",
       "duration": "Duration in minutes",
       "reason": "Reason",
       "reasonPlaceholder": "E.g. Weekly family visit",
-      "submit": "Schedule visit",
+      "submit": "Schedule appointment",
       "success": "Appointment scheduled",
-      "successText": "The family visit was registered successfully."
+      "successText": "The appointment was registered successfully.",
+      "medicalRequiresDoctor": "Select a treating physician first in the Doctor section.",
+      "medicalRequiresAssignment": "This medical appointment requires a confirmed doctor assignment.",
+      "scheduleFailed": "Could not schedule the appointment. Check the details and try again."
     },
     "detail": {
       "title": "Appointment detail",
@@ -438,11 +453,13 @@
     "manage": "Manage Subscription",
     "manageDesc": "Change plan or cancel",
     "noSubscription": "You don't have an active subscription",
-    "noSubscriptionDesc": "Subscribe to access all premium features",
+    "noSubscriptionDesc": "Choose a plan to access premium family network features",
     "viewPlans": "View Plans",
     "free": "Free",
     "checkoutUnavailable": "Checkout unavailable",
-    "checkoutUnavailableDesc": "The local backend does not have Stripe configured. For the demo, the free plan remains active until a test key is enabled.",
+    "checkoutUnavailableDesc": "We could not start plan activation. Try again in a few minutes.",
+    "activatedTitle": "Plan activated",
+    "activatedDesc": "Your subscription is now active for this account.",
     "plans": {
       "free": "Family Free Plan",
       "premiumMonthly": "Family Premium Plan",
