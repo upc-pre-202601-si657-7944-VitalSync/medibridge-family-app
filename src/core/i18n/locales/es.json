@@ -57,7 +57,7 @@
     "sidebar": {
       "dashboard": "Dashboard",
       "familyProfile": "Mi Perfil",
-      "patient": "Mi Paciente",
+      "patient": "Familiar vinculado",
       "doctor": "Médico",
       "careTeam": "Equipo de Cuidado",
       "appointments": "Citas",
@@ -79,15 +79,24 @@
       "created": "Tu perfil de familiar ya fue registrado."
     },
     "patient": {
-      "title": "Mi Paciente",
-      "description": "Información del paciente vinculado.",
-      "loading": "Cargando información del paciente...",
-      "empty": "Aún no hay un paciente vinculado para mostrar.",
+      "title": "Familiar vinculado",
+      "description": "Información de la persona de tu red familiar.",
+      "loading": "Cargando información de la persona vinculada...",
+      "empty": "Aún no hay una persona vinculada para mostrar.",
       "profileRequired": "Primero debes crear tu perfil de familiar.",
-      "createAndLinkLabel": "Crea el perfil del paciente que vas a cuidar. Lo vincularemos automáticamente con tu perfil familiar.",
-      "fullName": "Nombre completo del paciente",
+      "createAndLinkTitle": "Registrar persona nueva",
+      "createAndLinkLabel": "Crea el perfil de la persona de tu red familiar. Lo vincularemos automáticamente con tu perfil.",
+      "fullName": "Nombre completo",
       "fullNamePlaceholder": "Ej. Roberto García Méndez",
-      "createAndLinkSubmit": "Crear y vincular paciente"
+      "createAndLinkSubmit": "Crear y vincular",
+      "linkExistingTitle": "Vincular persona existente",
+      "linkExistingLabel": "Para demo, busca por ID a una persona ya registrada. Confirma el nombre antes de vincularla a tu red familiar.",
+      "existingPatientId": "ID de la persona vinculada",
+      "findExistingSubmit": "Buscar persona",
+      "searchingExisting": "Buscando persona...",
+      "existingNotFound": "No encontramos una persona con ese ID.",
+      "foundExisting": "Persona encontrada",
+      "linkExistingSubmit": "Vincular existente"
     },
     "doctor": {
       "title": "Médico Tratante",
@@ -101,8 +110,8 @@
     },
     "errors": {
       "createFailed": "No se pudo crear el perfil. Intenta nuevamente.",
-      "patientLoadFailed": "No se pudo cargar la información del paciente.",
-      "patientLinkFailed": "No se pudo crear o vincular el paciente con tu perfil.",
+      "patientLoadFailed": "No se pudo cargar la información de la persona vinculada.",
+      "patientLinkFailed": "No se pudo crear o vincular la persona con tu perfil.",
       "doctorLoadFailed": "No se pudo cargar la información del médico."
     }
   },
@@ -113,16 +122,41 @@
     "medications": "Medicamentos",
     "observations": "Observaciones",
     "messages": "Mensajes sin leer",
+    "quickAccess": "Accesos rápidos",
     "viewAll": "Ver todos"
   },
   "appointments": {
     "title": "Citas",
     "empty": "No hay citas programadas.",
     "schedule": "Agendar cita",
+    "upcoming": "Próxima cita",
     "startsAt": "Fecha y hora",
     "duration": "Duración (minutos)",
     "reason": "Motivo",
     "submit": "Agendar",
+    "tabs": {
+      "all": "Todas",
+      "family": "Familiares",
+      "medical": "Médicas"
+    },
+    "form": {
+      "title": "Agendar visita familiar",
+      "startsAt": "Fecha y hora",
+      "duration": "Duración en minutos",
+      "reason": "Motivo",
+      "reasonPlaceholder": "Ej. Visita familiar semanal",
+      "submit": "Agendar visita",
+      "success": "Cita agendada",
+      "successText": "La visita familiar fue registrada correctamente."
+    },
+    "detail": {
+      "title": "Detalle de cita",
+      "type": "Tipo",
+      "status": "Estado",
+      "reason": "Motivo",
+      "start": "Inicio",
+      "end": "Fin"
+    },
     "type": {
       "FAMILY_VISIT": "Visita Familiar",
       "MEDICAL": "Cita Médica"
@@ -137,22 +171,107 @@
   "medication": {
     "title": "Medicación",
     "empty": "No hay medicamentos registrados.",
+    "tabs": {
+      "inventory": "Inventario",
+      "schedules": "Horarios",
+      "history": "Historial"
+    },
+    "lowStockAlerts": "Alertas de stock bajo",
+    "addSchedule": "Agregar horario",
+    "updateStock": "Actualizar stock",
+    "threshold": "Umbral bajo",
+    "noMedications": "Primero registra un medicamento.",
+    "noDoses": "No hay dosis registradas.",
+    "selectMedication": "Selecciona un medicamento para ver su historial.",
     "dosage": "Dosis",
     "route": "Vía",
     "stock": "Stock",
     "lowStock": "Stock bajo",
     "expires": "Vence",
+    "form": {
+      "title": "Registrar medicamento",
+      "name": "Nombre del medicamento",
+      "dosage": "Cantidad de dosis",
+      "unit": "Unidad",
+      "route": "Vía de administración",
+      "stock": "Stock actual",
+      "threshold": "Umbral de stock bajo",
+      "expiration": "Fecha de vencimiento"
+    },
     "unit": {
       "MG": "mg",
       "ML": "ml",
       "TABLET": "comprimido",
       "CAPSULE": "cápsula",
-      "DROP": "gotas"
+      "DROP": "gotas",
+      "UNIT": "unidad"
+    },
+    "units": {
+      "MG": "mg",
+      "ML": "ml",
+      "TABLET": "comprimido",
+      "CAPSULE": "cápsula",
+      "DROP": "gotas",
+      "UNIT": "unidad"
+    },
+    "routes": {
+      "ORAL": "Oral",
+      "INTRAVENOUS": "Intravenosa",
+      "INTRAMUSCULAR": "Intramuscular",
+      "SUBCUTANEOUS": "Subcutánea",
+      "TOPICAL": "Tópica",
+      "INHALATORY": "Inhalatoria",
+      "RECTAL": "Rectal"
+    },
+    "schedule": {
+      "title": "Crear horario",
+      "empty": "No hay horarios activos.",
+      "frequencyLabel": "Frecuencia",
+      "timesPerDay": "Veces por día",
+      "time": "Hora",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin",
+      "frequency": {
+        "DAILY": "Diario",
+        "WEEKLY": "Semanal",
+        "MONTHLY": "Mensual",
+        "EVERY_12_HOURS": "Cada 12 horas",
+        "EVERY_8_HOURS": "Cada 8 horas",
+        "EVERY_6_HOURS": "Cada 6 horas",
+        "AS_NEEDED": "Según necesidad"
+      }
+    },
+    "dose": {
+      "title": "Registrar dosis",
+      "register": "Registrar dosis",
+      "administered": "Administrada",
+      "skipped": "Omitida",
+      "administeredAt": "Fecha y hora",
+      "notes": "Notas",
+      "notesPlaceholder": "Observaciones opcionales"
+    },
+    "skip": {
+      "title": "Omitir dosis",
+      "action": "Omitir",
+      "skippedAt": "Fecha y hora",
+      "reason": "Motivo",
+      "reasonPlaceholder": "Explica por qué se omitió la dosis",
+      "confirm": "Confirmar omisión"
+    },
+    "stock": {
+      "title": "Actualizar stock",
+      "current": "Stock actual",
+      "new": "Nuevo stock"
     }
   },
   "monitoring": {
     "title": "Monitoreo de Salud",
     "empty": "No hay observaciones registradas.",
+    "tabs": {
+      "observations": "Observaciones",
+      "summary": "Resumen",
+      "alerts": "Alertas"
+    },
     "bloodPressure": "Presión arterial",
     "temperature": "Temperatura",
     "painLevel": "Dolor",
@@ -160,13 +279,55 @@
     "notes": "Notas clínicas",
     "mmHg": "mmHg",
     "celsius": "°C",
-    "outOf10": "/10"
+    "outOf10": "/10",
+    "summary": {
+      "title": "Resumen de salud",
+      "latestBP": "Última presión",
+      "avgTemp": "Temperatura promedio",
+      "painTrend": "Tendencia de dolor",
+      "emotionalTrend": "Tendencia emocional",
+      "activeAlerts": "Alertas activas",
+      "totalObs": "Observaciones",
+      "trendDown": "Bajando",
+      "trendStable": "Estable",
+      "trendUp": "Subiendo",
+      "noData": "No hay datos suficientes para el resumen."
+    },
+    "alerts": {
+      "noAlerts": "No hay alertas clínicas activas."
+    },
+    "form": {
+      "title": "Registrar observación",
+      "vitals": "Signos vitales",
+      "systolic": "Presión sistólica",
+      "diastolic": "Presión diastólica",
+      "temperature": "Temperatura",
+      "painLevel": "Nivel de dolor",
+      "emotional": "Estado emocional",
+      "emotionalState": "Estado emocional",
+      "notes": "Notas",
+      "clinicalNotes": "Notas clínicas",
+      "clinicalNotesPlaceholder": "Observaciones relevantes para la familia",
+      "save": "Guardar observación"
+    },
+    "emotional": {
+      "CALM": "Calma",
+      "ANXIOUS": "Ansiosa",
+      "STABLE": "Estable",
+      "SAD": "Triste",
+      "AGITATED": "Agitada",
+      "HAPPY": "Contenta"
+    }
   },
   "messages": {
     "title": "Mensajes",
     "empty": "No hay notificaciones.",
     "unread": "No leído",
     "markRead": "Marcar como leído",
+    "tabs": {
+      "notifications": "Notificaciones",
+      "chat": "Chat"
+    },
     "type": {
       "APPOINTMENT": "Cita",
       "MEDICATION": "Medicación",
@@ -176,6 +337,7 @@
   },
   "reports": {
     "title": "Reportes",
+    "premium": "Reportes clínicos",
     "empty": "No hay reportes generados.",
     "generate": "Generar reporte",
     "type": "Tipo de reporte",
@@ -186,7 +348,35 @@
       "FULL_CLINICAL": "Clínico Completo"
     },
     "period": "Período",
-    "summary": "Resumen"
+    "summary": "Resumen",
+    "tabs": {
+      "reports": "Reportes",
+      "analytics": "Analítica"
+    },
+    "analytics": {
+      "premium": "Analítica avanzada",
+      "overview": "Resumen general",
+      "observations": "Observaciones",
+      "alerts": "Alertas",
+      "reports": "Reportes",
+      "medication": "Medicación",
+      "adherence": "Adherencia",
+      "skippedDoses": "Dosis omitidas",
+      "health": "Salud",
+      "avgBP": "Presión promedio",
+      "lastObservation": "Última observación",
+      "noData": "No hay datos analíticos disponibles."
+    },
+    "detail": {
+      "premium": "Detalle de reporte",
+      "title": "Detalle del reporte",
+      "type": "Tipo",
+      "period": "Período",
+      "generated": "Generado",
+      "summary": "Resumen",
+      "downloadPdf": "Descargar PDF"
+    },
+    "downloadError": "No se pudo descargar el reporte."
   },
   "payments": {
     "title": "Pagos",
@@ -249,7 +439,15 @@
     "manageDesc": "Cambiar plan o cancelar",
     "noSubscription": "No tienes una suscripción activa",
     "noSubscriptionDesc": "Suscríbete para acceder a todas las funciones premium",
-    "viewPlans": "Ver Planes"
+    "viewPlans": "Ver Planes",
+    "free": "Gratis",
+    "checkoutUnavailable": "Checkout no disponible",
+    "checkoutUnavailableDesc": "El backend local no tiene Stripe configurado. Para la demo, se mantiene el plan gratuito hasta activar una clave de prueba.",
+    "plans": {
+      "free": "Plan Gratuito Familiar",
+      "premiumMonthly": "Plan Premium Familiar",
+      "premiumAnnual": "Plan Premium Familiar Anual"
+    }
   },
   "invoices": {
     "title": "Historial de Facturas",
@@ -259,7 +457,23 @@
     "amount": "Monto",
     "issuedAt": "Fecha de Emisión",
     "paidAt": "Fecha de Pago",
-    "downloadPdf": "Descargar PDF"
+    "downloadPdf": "Descargar PDF",
+    "pdfUnavailable": "El backend local no expone PDF ni fecha de pago para esta factura."
+  },
+  "chat": {
+    "doctor": "Médico",
+    "family": "Familiar",
+    "empty": "No hay conversaciones disponibles.",
+    "online": "En línea",
+    "placeholder": "Escribe un mensaje..."
+  },
+  "premium": {
+    "title": "Función Premium",
+    "description": "Esta función está disponible solo para usuarios con suscripción Premium.",
+    "featureDescription": "{{featureName}} está disponible solo para usuarios con suscripción Premium.",
+    "viewPlans": "Ver planes",
+    "thisFeature": "Esta función",
+    "overlay": "{{featureName}} requiere Premium"
   },
   "setup": {
     "title": "Configuración Inicial",
@@ -271,16 +485,16 @@
       "description": "Registra tu información personal como familiar cuidador"
     },
     "step2": {
-      "title": "Registrar Paciente",
-      "description": "Agrega la información del paciente que vas a cuidar"
+      "title": "Vincular persona",
+      "description": "Registra o conecta a la persona de tu red familiar"
     },
     "step3": {
-      "title": "Vincular Familiar",
-      "description": "Conecta tu perfil con el paciente registrado"
+      "title": "Persona vinculada",
+      "description": "Tu perfil queda conectado con la persona registrada"
     },
     "step4": {
-      "title": "Asignar Doctor",
-      "description": "Agrega al médico tratante del paciente"
+      "title": "Asignar Doctor (opcional)",
+      "description": "Agrega al médico tratante cuando esté disponible"
     }
   },
   "common": {
@@ -290,6 +504,7 @@
     "retry": "Reintentar",
     "cancel": "Cancelar",
     "save": "Guardar",
+    "saving": "Guardando...",
     "back": "Volver",
     "yes": "Sí",
     "no": "No"

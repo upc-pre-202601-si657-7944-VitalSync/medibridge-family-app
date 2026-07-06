@@ -36,21 +36,33 @@ export default function CareTeamPage() {
       return;
     }
 
+    const loadOwnFamilyProfile = async () => {
+      const familyMemberId = profilesStore.getFamilyMemberId();
+      if (!familyMemberId) return;
+
+      const { data } = await profilesApi.get(`/profiles/family-members/${familyMemberId}`);
+      setFamilyMembers(data ? [data] : []);
+    };
+
     try {
-      const [doctorsRes, familyRes] = await Promise.allSettled([
-        profilesApi.get(`/patients/${patientId}/doctors`),
-        profilesApi.get(`/patients/${patientId}/family-members`),
+      const { data } = await profilesApi.get(`/internal/profiles/patients/${patientId}/care-team-members`);
+      const doctorProfileIds = Array.isArray(data?.doctorProfileIds) ? data.doctorProfileIds : [];
+      const familyMemberProfileIds = Array.isArray(data?.familyMemberProfileIds) ? data.familyMemberProfileIds : [];
+
+      const [doctorProfiles, familyProfiles] = await Promise.all([
+        Promise.allSettled(doctorProfileIds.map((id: number) => profilesApi.get(`/profiles/doctors/${id}`))),
+        Promise.allSettled(familyMemberProfileIds.map((id: number) => profilesApi.get(`/profiles/family-members/${id}`))),
       ]);
 
-      if (doctorsRes.status === 'fulfilled' && Array.isArray(doctorsRes.value.data)) {
-        setDoctors(doctorsRes.value.data);
-      }
+      setDoctors(doctorProfiles
+        .filter((result): result is PromiseFulfilledResult<{ data: DoctorInfo }> => result.status === 'fulfilled')
+        .map((result) => result.value.data));
 
-      if (familyRes.status === 'fulfilled' && Array.isArray(familyRes.value.data)) {
-        setFamilyMembers(familyRes.value.data);
-      }
-    } catch (error) {
-      console.error('[care-team] load failed', error);
+      setFamilyMembers(familyProfiles
+        .filter((result): result is PromiseFulfilledResult<{ data: FamilyMemberInfo }> => result.status === 'fulfilled')
+        .map((result) => result.value.data));
+    } catch {
+      await loadOwnFamilyProfile();
     } finally {
       setLoading(false);
       setRefreshing(false);

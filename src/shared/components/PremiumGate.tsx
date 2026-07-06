@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSubscriptionStore } from '../../core/storage/subscription-store';
@@ -12,6 +13,7 @@ interface PremiumGateProps {
 }
 
 export function PremiumGate({ children, fallback, featureName }: PremiumGateProps) {
+  const { t } = useTranslation();
   const isPremium = useSubscriptionStore((s) => s.isPremium);
 
   if (isPremium) {
@@ -27,23 +29,23 @@ export function PremiumGate({ children, fallback, featureName }: PremiumGateProp
       <View style={styles.lockCircle}>
         <Feather name="lock" size={32} color={colors.primary} />
       </View>
-      <Text style={styles.title}>Funcion Premium</Text>
+      <Text style={styles.title}>{t('premium.title')}</Text>
       {featureName ? (
         <Text style={styles.description}>
-          {featureName} esta disponible solo para usuarios con suscripcion Premium.
+          {t('premium.featureDescription', { featureName })}
         </Text>
       ) : (
         <Text style={styles.description}>
-          Esta funcion esta disponible solo para usuarios con suscripcion Premium.
+          {t('premium.description')}
         </Text>
       )}
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/(family)/payments')}
+        onPress={() => router.push('/(family)/subscription')}
         activeOpacity={0.7}
       >
         <Feather name="star" size={18} color="#fff" />
-        <Text style={styles.buttonText}>Ver planes</Text>
+        <Text style={styles.buttonText}>{t('premium.viewPlans')}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -63,12 +65,13 @@ export function PremiumBadge() {
 }
 
 export function PremiumLockOverlay({ featureName }: { featureName?: string }) {
+  const { t } = useTranslation();
   return (
     <View style={styles.overlayContainer}>
       <View style={styles.overlayContent}>
         <Feather name="lock" size={24} color={colors.primary} />
         <Text style={styles.overlayText}>
-          {featureName || 'Esta funcion'} requiere Premium
+          {t('premium.overlay', { featureName: featureName || t('premium.thisFeature') })}
         </Text>
       </View>
     </View>

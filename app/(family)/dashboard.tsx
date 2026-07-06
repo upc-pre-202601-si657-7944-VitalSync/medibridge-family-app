@@ -27,6 +27,7 @@ interface MetricCard {
 export default function DashboardPage() {
   const { t } = useTranslation();
   const currentUser = useAuthStore((s) => s.currentUser);
+  const isPremium = useSubscriptionStore((s) => s.isPremium);
   const [metrics, setMetrics] = useState<MetricCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -86,8 +87,12 @@ export default function DashboardPage() {
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} colors={[colors.primary]} />}
       >
-        <ActiveAlertsCard />
-        <HealthSummaryCard />
+        {isPremium ? (
+          <>
+            <ActiveAlertsCard />
+            <HealthSummaryCard />
+          </>
+        ) : null}
         <NextAppointmentCard />
         <TodayMedicationsCard />
         <LowStockCard />

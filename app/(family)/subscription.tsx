@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
+import { Alert, Linking, View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
-import { Card, Badge, Button, LoadingSpinner } from '../../src/shared/components';
+import axios from 'axios';
+import { Card, Badge, LoadingSpinner } from '../../src/shared/components';
 import { paymentsApi } from '../../src/core/api/services';
 import { useAuthStore } from '../../src/core/auth/auth-store';
 import { colors, spacing, radius, fontFamily, fontFamilySemiBold, fontFamilyBold } from '../../src/shared/theme';
@@ -17,10 +18,15 @@ interface Subscription {
     currency: string;
   };
   status: string;
-  startDate: string;
-  endDate: string;
-  autoRenew: boolean;
+  startedAt: string;
+  currentPeriodEnd: string;
 }
+
+const demoPlans = [
+  { planType: 'FREE', billingCycle: 'MONTHLY', price: 0, labelKey: 'subscription.plans.free' },
+  { planType: 'FAMILY_PREMIUM', billingCycle: 'MONTHLY', price: 19.9, labelKey: 'subscription.plans.premiumMonthly' },
+  { planType: 'FAMILY_PREMIUM', billingCycle: 'ANNUALLY', price: 199, labelKey: 'subscription.plans.premiumAnnual' },
+] as const;
 
 export default function SubscriptionPage() {
   const { t } = useTranslation();
@@ -42,10 +48,34 @@ export default function SubscriptionPage() {
         setSubscription(data);
       }
     } catch (error) {
-      console.error('[subscription] load failed', error);
+      if (!axios.isAxiosError(error) || error.response?.status !== 404) {
+        console.error('[subscription] load failed', error);
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const handleCheckout = async (plan: typeof demoPlans[number]) => {
+    if (!currentUser?.id) return;
+
+    try {
+      const { data } = await paymentsApi.post('/subscriptions/checkout', {
+        userId: Number(currentUser.id),
+        commercialLine: 'FAMILY',
+        planType: plan.planType,
+        billingCycle: plan.billingCycle,
+      });
+
+      if (data?.checkoutUrl) {
+        await Linking.openURL(data.checkoutUrl);
+        return;
+      }
+
+      Alert.alert(t('common.error'), t('subscription.checkoutUnavailable'));
+    } catch (error) {
+      Alert.alert(t('subscription.checkoutUnavailable'), t('subscription.checkoutUnavailableDesc'));
     }
   };
 
@@ -104,34 +134,15 @@ export default function SubscriptionPage() {
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>{t('subscription.startDate')}</Text>
               <Text style={styles.infoValue}>
-                {new Date(subscription.startDate).toLocaleDateString()}
+                {new Date(subscription.startedAt).toLocaleDateString()}
               </Text>
             </View>
 
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>{t('subscription.endDate')}</Text>
               <Text style={styles.infoValue}>
-                {new Date(subscription.endDate).toLocaleDateString()}
+                {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
               </Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>{t('subscription.autoRenew')}</Text>
-              <View style={styles.autoRenewBadge}>
-                <Feather
-                  name={subscription.autoRenew ? 'check' : 'x'}
-                  size={14}
-                  color={subscription.autoRenew ? '#16a34a' : colors.error}
-                />
-                <Text
-                  style={[
-                    styles.autoRenewText,
-                    { color: subscription.autoRenew ? '#16a34a' : colors.error },
-                  ]}
-                >
-                  {subscription.autoRenew ? t('common.yes') : t('common.no')}
-                </Text>
-              </View>
             </View>
           </Card>
 
@@ -155,11 +166,19 @@ export default function SubscriptionPage() {
           </View>
           <Text style={styles.emptyTitle}>{t('subscription.noSubscription')}</Text>
           <Text style={styles.emptyDesc}>{t('subscription.noSubscriptionDesc')}</Text>
-          <Button
-            title={t('subscription.viewPlans')}
-            onPress={() => {}}
-            style={styles.emptyButton}
-          />
+          <View style={styles.planList}>
+            {demoPlans.map((plan) => (
+              <TouchableOpacity key={`${plan.planType}-${plan.billingCycle}`} activeOpacity={0.75} onPress={() => handleCheckout(plan)}>
+                <View style={styles.planCard}>
+                  <View>
+                    <Text style={styles.planTitle}>{t(plan.labelKey)}</Text>
+                    <Text style={styles.planMeta}>{plan.billingCycle}</Text>
+                  </View>
+                  <Text style={styles.planPrice}>{plan.price === 0 ? t('subscription.free') : `$${plan.price}`}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         </Card>
       )}
     </ScrollView>
@@ -180,8 +199,6 @@ const styles = StyleSheet.create({
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.sm },
   infoLabel: { fontFamily, fontSize: 14, color: colors.textMuted },
   infoValue: { fontFamily: fontFamilySemiBold, fontSize: 14, color: colors.textPrimary },
-  autoRenewBadge: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  autoRenewText: { fontFamily: fontFamilySemiBold, fontSize: 14 },
   manageButton: { marginBottom: spacing.lg },
   manageCard: { flexDirection: 'row', alignItems: 'center' },
   manageInfo: { flex: 1, marginLeft: spacing.md },
@@ -191,5 +208,9 @@ const styles = StyleSheet.create({
   emptyIcon: { marginBottom: spacing.lg },
   emptyTitle: { fontFamily: fontFamilyBold, fontSize: 18, color: colors.textPrimary, marginBottom: spacing.sm, textAlign: 'center' },
   emptyDesc: { fontFamily, fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl, lineHeight: 20 },
-  emptyButton: { width: '100%' },
+  planList: { width: '100%', gap: spacing.md },
+  planCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.md, borderWidth: 1, borderColor: colors.borderLight, borderRadius: radius.lg, backgroundColor: colors.surface },
+  planTitle: { fontFamily: fontFamilySemiBold, fontSize: 15, color: colors.textPrimary },
+  planMeta: { fontFamily, fontSize: 12, color: colors.textMuted, marginTop: 2 },
+  planPrice: { fontFamily: fontFamilyBold, fontSize: 16, color: colors.primary },
 });

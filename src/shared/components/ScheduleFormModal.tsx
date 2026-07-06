@@ -74,7 +74,7 @@ export function ScheduleFormModal({ visible, onClose, onSaved, medicationId, med
           )}
 
           <Select
-            label={t('medication.schedule.frequency')}
+            label={t('medication.schedule.frequencyLabel')}
             value={frequency}
             onChange={(v) => setFrequency(v as FrequencyType)}
             options={frequencyOptions}

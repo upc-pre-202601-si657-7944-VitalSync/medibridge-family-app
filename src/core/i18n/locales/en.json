@@ -57,7 +57,7 @@
     "sidebar": {
       "dashboard": "Dashboard",
       "familyProfile": "My Profile",
-      "patient": "My Patient",
+      "patient": "Linked Family Member",
       "doctor": "Doctor",
       "careTeam": "Care Team",
       "appointments": "Appointments",
@@ -79,15 +79,24 @@
       "created": "Your family profile has already been registered."
     },
     "patient": {
-      "title": "My Patient",
-      "description": "Information of the linked patient.",
-      "loading": "Loading patient information...",
-      "empty": "There is no linked patient to display yet.",
+      "title": "Linked Family Member",
+      "description": "Information about the person in your family network.",
+      "loading": "Loading linked person information...",
+      "empty": "There is no linked person to display yet.",
       "profileRequired": "You must create your family profile first.",
-      "createAndLinkLabel": "Create the patient profile you will care for. We will link it automatically to your family profile.",
-      "fullName": "Patient full name",
+      "createAndLinkTitle": "Register new person",
+      "createAndLinkLabel": "Create the profile for the person in your family network. We will link it automatically to your profile.",
+      "fullName": "Full name",
       "fullNamePlaceholder": "E.g. Roberto Garcia Mendez",
-      "createAndLinkSubmit": "Create and link patient"
+      "createAndLinkSubmit": "Create and link",
+      "linkExistingTitle": "Link existing person",
+      "linkExistingLabel": "For demo, search by ID for an existing registered person. Confirm the name before linking them to your family network.",
+      "existingPatientId": "Linked person ID",
+      "findExistingSubmit": "Find person",
+      "searchingExisting": "Finding person...",
+      "existingNotFound": "No person was found with that ID.",
+      "foundExisting": "Person found",
+      "linkExistingSubmit": "Link existing"
     },
     "doctor": {
       "title": "Treating Physician",
@@ -101,8 +110,8 @@
     },
     "errors": {
       "createFailed": "Could not create profile. Please try again.",
-      "patientLoadFailed": "Could not load patient information.",
-      "patientLinkFailed": "Could not create or link the patient to your profile.",
+      "patientLoadFailed": "Could not load linked person information.",
+      "patientLinkFailed": "Could not create or link the person to your profile.",
       "doctorLoadFailed": "Could not load doctor information."
     }
   },
@@ -113,16 +122,41 @@
     "medications": "Medications",
     "observations": "Observations",
     "messages": "Unread messages",
+    "quickAccess": "Quick access",
     "viewAll": "View all"
   },
   "appointments": {
     "title": "Appointments",
     "empty": "No scheduled appointments.",
     "schedule": "Schedule appointment",
+    "upcoming": "Upcoming appointment",
     "startsAt": "Date and time",
     "duration": "Duration (minutes)",
     "reason": "Reason",
     "submit": "Schedule",
+    "tabs": {
+      "all": "All",
+      "family": "Family",
+      "medical": "Medical"
+    },
+    "form": {
+      "title": "Schedule family visit",
+      "startsAt": "Date and time",
+      "duration": "Duration in minutes",
+      "reason": "Reason",
+      "reasonPlaceholder": "E.g. Weekly family visit",
+      "submit": "Schedule visit",
+      "success": "Appointment scheduled",
+      "successText": "The family visit was registered successfully."
+    },
+    "detail": {
+      "title": "Appointment detail",
+      "type": "Type",
+      "status": "Status",
+      "reason": "Reason",
+      "start": "Start",
+      "end": "End"
+    },
     "type": {
       "FAMILY_VISIT": "Family Visit",
       "MEDICAL": "Medical"
@@ -137,22 +171,107 @@
   "medication": {
     "title": "Medication",
     "empty": "No medications registered.",
+    "tabs": {
+      "inventory": "Inventory",
+      "schedules": "Schedules",
+      "history": "History"
+    },
+    "lowStockAlerts": "Low stock alerts",
+    "addSchedule": "Add schedule",
+    "updateStock": "Update stock",
+    "threshold": "Low stock threshold",
+    "noMedications": "Register a medication first.",
+    "noDoses": "No doses recorded.",
+    "selectMedication": "Select a medication to view its history.",
     "dosage": "Dosage",
     "route": "Route",
     "stock": "Stock",
     "lowStock": "Low stock",
     "expires": "Expires",
+    "form": {
+      "title": "Register medication",
+      "name": "Medication name",
+      "dosage": "Dosage amount",
+      "unit": "Unit",
+      "route": "Administration route",
+      "stock": "Current stock",
+      "threshold": "Low stock threshold",
+      "expiration": "Expiration date"
+    },
     "unit": {
       "MG": "mg",
       "ML": "ml",
       "TABLET": "tablet",
       "CAPSULE": "capsule",
-      "DROP": "drops"
+      "DROP": "drops",
+      "UNIT": "unit"
+    },
+    "units": {
+      "MG": "mg",
+      "ML": "ml",
+      "TABLET": "tablet",
+      "CAPSULE": "capsule",
+      "DROP": "drops",
+      "UNIT": "unit"
+    },
+    "routes": {
+      "ORAL": "Oral",
+      "INTRAVENOUS": "Intravenous",
+      "INTRAMUSCULAR": "Intramuscular",
+      "SUBCUTANEOUS": "Subcutaneous",
+      "TOPICAL": "Topical",
+      "INHALATORY": "Inhalatory",
+      "RECTAL": "Rectal"
+    },
+    "schedule": {
+      "title": "Create schedule",
+      "empty": "No active schedules.",
+      "frequencyLabel": "Frequency",
+      "timesPerDay": "Times per day",
+      "time": "Time",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "frequency": {
+        "DAILY": "Daily",
+        "WEEKLY": "Weekly",
+        "MONTHLY": "Monthly",
+        "EVERY_12_HOURS": "Every 12 hours",
+        "EVERY_8_HOURS": "Every 8 hours",
+        "EVERY_6_HOURS": "Every 6 hours",
+        "AS_NEEDED": "As needed"
+      }
+    },
+    "dose": {
+      "title": "Record dose",
+      "register": "Record dose",
+      "administered": "Administered",
+      "skipped": "Skipped",
+      "administeredAt": "Date and time",
+      "notes": "Notes",
+      "notesPlaceholder": "Optional observations"
+    },
+    "skip": {
+      "title": "Skip dose",
+      "action": "Skip",
+      "skippedAt": "Date and time",
+      "reason": "Reason",
+      "reasonPlaceholder": "Explain why the dose was skipped",
+      "confirm": "Confirm skip"
+    },
+    "stock": {
+      "title": "Update stock",
+      "current": "Current stock",
+      "new": "New stock"
     }
   },
   "monitoring": {
     "title": "Health Monitoring",
     "empty": "No observations registered.",
+    "tabs": {
+      "observations": "Observations",
+      "summary": "Summary",
+      "alerts": "Alerts"
+    },
     "bloodPressure": "Blood pressure",
     "temperature": "Temperature",
     "painLevel": "Pain level",
@@ -160,13 +279,55 @@
     "notes": "Clinical notes",
     "mmHg": "mmHg",
     "celsius": "°C",
-    "outOf10": "/10"
+    "outOf10": "/10",
+    "summary": {
+      "title": "Health summary",
+      "latestBP": "Latest blood pressure",
+      "avgTemp": "Average temperature",
+      "painTrend": "Pain trend",
+      "emotionalTrend": "Emotional trend",
+      "activeAlerts": "Active alerts",
+      "totalObs": "Observations",
+      "trendDown": "Going down",
+      "trendStable": "Stable",
+      "trendUp": "Going up",
+      "noData": "There is not enough data for a summary."
+    },
+    "alerts": {
+      "noAlerts": "There are no active clinical alerts."
+    },
+    "form": {
+      "title": "Record observation",
+      "vitals": "Vital signs",
+      "systolic": "Systolic pressure",
+      "diastolic": "Diastolic pressure",
+      "temperature": "Temperature",
+      "painLevel": "Pain level",
+      "emotional": "Emotional state",
+      "emotionalState": "Emotional state",
+      "notes": "Notes",
+      "clinicalNotes": "Clinical notes",
+      "clinicalNotesPlaceholder": "Relevant observations for the family",
+      "save": "Save observation"
+    },
+    "emotional": {
+      "CALM": "Calm",
+      "ANXIOUS": "Anxious",
+      "STABLE": "Stable",
+      "SAD": "Sad",
+      "AGITATED": "Agitated",
+      "HAPPY": "Happy"
+    }
   },
   "messages": {
     "title": "Messages",
     "empty": "No notifications.",
     "unread": "Unread",
     "markRead": "Mark as read",
+    "tabs": {
+      "notifications": "Notifications",
+      "chat": "Chat"
+    },
     "type": {
       "APPOINTMENT": "Appointment",
       "MEDICATION": "Medication",
@@ -176,6 +337,7 @@
   },
   "reports": {
     "title": "Reports",
+    "premium": "Clinical reports",
     "empty": "No reports generated.",
     "generate": "Generate report",
     "type": "Report type",
@@ -186,7 +348,35 @@
       "FULL_CLINICAL": "Full Clinical"
     },
     "period": "Period",
-    "summary": "Summary"
+    "summary": "Summary",
+    "tabs": {
+      "reports": "Reports",
+      "analytics": "Analytics"
+    },
+    "analytics": {
+      "premium": "Advanced analytics",
+      "overview": "Overview",
+      "observations": "Observations",
+      "alerts": "Alerts",
+      "reports": "Reports",
+      "medication": "Medication",
+      "adherence": "Adherence",
+      "skippedDoses": "Skipped doses",
+      "health": "Health",
+      "avgBP": "Average blood pressure",
+      "lastObservation": "Last observation",
+      "noData": "No analytics data available."
+    },
+    "detail": {
+      "premium": "Report detail",
+      "title": "Report detail",
+      "type": "Type",
+      "period": "Period",
+      "generated": "Generated",
+      "summary": "Summary",
+      "downloadPdf": "Download PDF"
+    },
+    "downloadError": "Could not download the report."
   },
   "payments": {
     "title": "Payments",
@@ -249,7 +439,15 @@
     "manageDesc": "Change plan or cancel",
     "noSubscription": "You don't have an active subscription",
     "noSubscriptionDesc": "Subscribe to access all premium features",
-    "viewPlans": "View Plans"
+    "viewPlans": "View Plans",
+    "free": "Free",
+    "checkoutUnavailable": "Checkout unavailable",
+    "checkoutUnavailableDesc": "The local backend does not have Stripe configured. For the demo, the free plan remains active until a test key is enabled.",
+    "plans": {
+      "free": "Family Free Plan",
+      "premiumMonthly": "Family Premium Plan",
+      "premiumAnnual": "Annual Family Premium Plan"
+    }
   },
   "invoices": {
     "title": "Invoice History",
@@ -259,7 +457,23 @@
     "amount": "Amount",
     "issuedAt": "Issue Date",
     "paidAt": "Payment Date",
-    "downloadPdf": "Download PDF"
+    "downloadPdf": "Download PDF",
+    "pdfUnavailable": "The local backend does not expose PDF or payment date for this invoice."
+  },
+  "chat": {
+    "doctor": "Doctor",
+    "family": "Family",
+    "empty": "No conversations available.",
+    "online": "Online",
+    "placeholder": "Write a message..."
+  },
+  "premium": {
+    "title": "Premium Feature",
+    "description": "This feature is available only for Premium subscribers.",
+    "featureDescription": "{{featureName}} is available only for Premium subscribers.",
+    "viewPlans": "View plans",
+    "thisFeature": "This feature",
+    "overlay": "{{featureName}} requires Premium"
   },
   "setup": {
     "title": "Initial Setup",
@@ -271,16 +485,16 @@
       "description": "Register your personal information as a caregiver"
     },
     "step2": {
-      "title": "Register Patient",
-      "description": "Add information about the patient you will care for"
+      "title": "Link Person",
+      "description": "Register or connect the person in your family network"
     },
     "step3": {
-      "title": "Link Family Member",
-      "description": "Connect your profile with the registered patient"
+      "title": "Linked Person",
+      "description": "Your profile is connected to the registered person"
     },
     "step4": {
-      "title": "Assign Doctor",
-      "description": "Add the patient's treating physician"
+      "title": "Assign Doctor (optional)",
+      "description": "Add the treating physician when available"
     }
   },
   "common": {
@@ -290,6 +504,7 @@
     "retry": "Retry",
     "cancel": "Cancel",
     "save": "Save",
+    "saving": "Saving...",
     "back": "Back",
     "yes": "Yes",
     "no": "No"

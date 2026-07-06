@@ -1,10 +1,18 @@
 import { create } from 'zustand';
 import { paymentsApi } from '../api/services';
-import { Subscription, SubscriptionPlan, SubscriptionStatus } from '../../features/payments/domain/models';
+import { Subscription, SubscriptionPlanType } from '../../features/payments/domain/models';
 import { useAuthStore } from '../auth/auth-store';
 import { appStorage } from '../storage/storage';
 
 const SUBSCRIPTION_KEY = 'subscription-data';
+
+function subscriptionKey(userId: string): string {
+  return `${SUBSCRIPTION_KEY}.${userId}`;
+}
+
+function isPremiumSubscription(sub: Subscription | null): boolean {
+  return sub?.status === 'ACTIVE' && sub.plan?.planType !== 'FREE';
+}
 
 interface SubscriptionState {
   subscription: Subscription | null;
@@ -24,12 +32,12 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
     const userId = useAuthStore.getState().currentUser?.id;
     if (!userId) return;
 
-    const cached = appStorage.get(SUBSCRIPTION_KEY);
+    const key = subscriptionKey(userId);
+    const cached = appStorage.get(key);
     if (cached) {
       try {
         const sub: Subscription = JSON.parse(cached);
-        const isPremium = sub.status === 'ACTIVE' && sub.plan !== 'FREE';
-        set({ subscription: sub, isPremium });
+        set({ subscription: sub, isPremium: isPremiumSubscription(sub) });
       } catch { /* ignore */ }
     }
 
@@ -38,14 +46,13 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
       const { data } = await paymentsApi.get(`/subscriptions/users/${userId}/active`);
       if (data) {
         const sub: Subscription = data;
-        const isPremium = sub.status === 'ACTIVE' && sub.plan !== 'FREE';
-        appStorage.set(SUBSCRIPTION_KEY, JSON.stringify(sub));
-        set({ subscription: sub, isPremium, isLoading: false });
+        appStorage.set(key, JSON.stringify(sub));
+        set({ subscription: sub, isPremium: isPremiumSubscription(sub), isLoading: false });
       } else {
         set({ subscription: null, isPremium: false, isLoading: false });
       }
     } catch {
-      set({ isLoading: false });
+      set({ subscription: null, isPremium: false, isLoading: false });
     }
   },
 
@@ -54,16 +61,17 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
   },
 
   clearSubscription: () => {
-    appStorage.remove(SUBSCRIPTION_KEY);
+    const userId = useAuthStore.getState().currentUser?.id;
+    if (userId) appStorage.remove(subscriptionKey(userId));
     set({ subscription: null, isPremium: false });
   },
 }));
 
-export function isPremiumPlan(plan: SubscriptionPlan): boolean {
-  return plan === 'PREMIUM' || plan === 'FAMILY';
+export function isPremiumPlan(plan: SubscriptionPlanType): boolean {
+  return plan !== 'FREE';
 }
 
 export function isSubscriptionActive(sub: Subscription | null): boolean {
   if (!sub) return false;
-  return sub.status === 'ACTIVE' && new Date(sub.endDate) > new Date();
+  return sub.status === 'ACTIVE' && new Date(sub.currentPeriodEnd) > new Date();
 }

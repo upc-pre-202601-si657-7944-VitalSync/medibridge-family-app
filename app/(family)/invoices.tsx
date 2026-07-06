@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
 import { Card, Badge, LoadingSpinner, EmptyState } from '../../src/shared/components';
@@ -15,8 +15,6 @@ interface Invoice {
   currency: string;
   status: string;
   issuedAt: string;
-  paidAt: string | null;
-  pdfUrl: string;
 }
 
 export default function InvoicesPage() {
@@ -53,14 +51,6 @@ export default function InvoicesPage() {
   const onRefresh = () => {
     setRefreshing(true);
     loadInvoices();
-  };
-
-  const handleDownloadPdf = async (pdfUrl: string) => {
-    try {
-      await Linking.openURL(pdfUrl);
-    } catch (error) {
-      console.error('[invoices] download failed', error);
-    }
   };
 
   const getStatusColor = (status: string): 'green' | 'yellow' | 'red' => {
@@ -122,24 +112,7 @@ export default function InvoicesPage() {
               </Text>
             </View>
 
-            {invoice.paidAt && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>{t('invoices.paidAt')}</Text>
-                <Text style={styles.infoValue}>
-                  {new Date(invoice.paidAt).toLocaleDateString()}
-                </Text>
-              </View>
-            )}
-
-            {invoice.pdfUrl && (
-              <TouchableOpacity
-                style={styles.downloadButton}
-                onPress={() => handleDownloadPdf(invoice.pdfUrl)}
-              >
-                <Feather name="download" size={16} color={colors.primary} />
-                <Text style={styles.downloadText}>{t('invoices.downloadPdf')}</Text>
-              </TouchableOpacity>
-            )}
+            <Text style={styles.invoiceNote}>{t('invoices.pdfUnavailable')}</Text>
           </Card>
         ))
       )}
@@ -162,6 +135,5 @@ const styles = StyleSheet.create({
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.sm },
   infoLabel: { fontFamily, fontSize: 14, color: colors.textMuted },
   infoValue: { fontFamily: fontFamilySemiBold, fontSize: 14, color: colors.textPrimary },
-  downloadButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, backgroundColor: colors.primaryLight, paddingVertical: spacing.md, borderRadius: radius.md, marginTop: spacing.md },
-  downloadText: { fontFamily: fontFamilySemiBold, fontSize: 14, color: colors.primary },
+  invoiceNote: { fontFamily, fontSize: 12, color: colors.textMuted, marginTop: spacing.md },
 });

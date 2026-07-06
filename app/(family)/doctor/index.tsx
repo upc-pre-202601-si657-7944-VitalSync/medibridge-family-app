@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
 import { Card, LoadingSpinner, EmptyState } from '../../../src/shared/components';
 import { profilesApi } from '../../../src/core/api/services';
 import { profilesStore } from '../../../src/core/storage/profiles-store';
@@ -23,14 +22,7 @@ export default function DoctorPage() {
       if (!familyMemberId) { setLoading(false); setRefreshing(false); return; }
       const { data } = await profilesApi.get(`/profiles/family-members/${familyMemberId}/doctor`);
       if (data) setDoctor(data);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('[doctor] load failed', {
-          status: error.response?.status,
-          data: error.response?.data,
-          message: error.message,
-        });
-      }
+    } catch {
       setDoctor(null);
     } finally { setLoading(false); setRefreshing(false); }
   }, [linkedPatientId]);
