@@ -1,26 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Alert, Linking, View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
+import { Alert, View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
-import axios from 'axios';
 import { Card, Badge, LoadingSpinner } from '../../src/shared/components';
-import { paymentsApi } from '../../src/core/api/services';
-import { useAuthStore } from '../../src/core/auth/auth-store';
+import { useSubscriptionStore } from '../../src/core/storage/subscription-store';
 import { colors, spacing, radius, fontFamily, fontFamilySemiBold, fontFamilyBold } from '../../src/shared/theme';
-
-interface Subscription {
-  id: number;
-  userId: number;
-  plan: {
-    displayName: string;
-    commercialLine: string;
-    price: number;
-    currency: string;
-  };
-  status: string;
-  startedAt: string;
-  currentPeriodEnd: string;
-}
 
 const demoPlans = [
   { planType: 'FREE', billingCycle: 'MONTHLY', price: 0, labelKey: 'subscription.plans.free' },
@@ -30,53 +14,23 @@ const demoPlans = [
 
 export default function SubscriptionPage() {
   const { t } = useTranslation();
-  const currentUser = useAuthStore((s: { currentUser: { id: string } | null }) => s.currentUser);
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [loading, setLoading] = useState(true);
+  const subscription = useSubscriptionStore((s) => s.subscription);
+  const loading = useSubscriptionStore((s) => s.isLoading);
+  const fetchSubscription = useSubscriptionStore((s) => s.fetchSubscription);
+  const activateLocalSubscription = useSubscriptionStore((s) => s.activateLocalSubscription);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadSubscription = async () => {
-    if (!currentUser?.id) {
-      setLoading(false);
-      setRefreshing(false);
-      return;
-    }
-
-    try {
-      const { data } = await paymentsApi.get(`/subscriptions/users/${currentUser.id}/active`);
-      if (data) {
-        setSubscription(data);
-      }
-    } catch (error) {
-      if (!axios.isAxiosError(error) || error.response?.status !== 404) {
-        console.error('[subscription] load failed', error);
-      }
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+    await fetchSubscription();
+    setRefreshing(false);
   };
 
-  const handleCheckout = async (plan: typeof demoPlans[number]) => {
-    if (!currentUser?.id) return;
-
-    try {
-      const { data } = await paymentsApi.post('/subscriptions/checkout', {
-        userId: Number(currentUser.id),
-        commercialLine: 'FAMILY',
-        planType: plan.planType,
-        billingCycle: plan.billingCycle,
-      });
-
-      if (data?.checkoutUrl) {
-        await Linking.openURL(data.checkoutUrl);
-        return;
-      }
-
-      Alert.alert(t('common.error'), t('subscription.checkoutUnavailable'));
-    } catch (error) {
-      Alert.alert(t('subscription.checkoutUnavailable'), t('subscription.checkoutUnavailableDesc'));
-    }
+  const handlePlanSelection = (plan: typeof demoPlans[number]) => {
+    activateLocalSubscription({
+      ...plan,
+      displayName: t(plan.labelKey),
+    });
+    Alert.alert(t('subscription.activatedTitle'), t('subscription.activatedDesc'));
   };
 
   useEffect(() => {
@@ -168,7 +122,7 @@ export default function SubscriptionPage() {
           <Text style={styles.emptyDesc}>{t('subscription.noSubscriptionDesc')}</Text>
           <View style={styles.planList}>
             {demoPlans.map((plan) => (
-              <TouchableOpacity key={`${plan.planType}-${plan.billingCycle}`} activeOpacity={0.75} onPress={() => handleCheckout(plan)}>
+              <TouchableOpacity key={`${plan.planType}-${plan.billingCycle}`} activeOpacity={0.75} onPress={() => handlePlanSelection(plan)}>
                 <View style={styles.planCard}>
                   <View>
                     <Text style={styles.planTitle}>{t(plan.labelKey)}</Text>

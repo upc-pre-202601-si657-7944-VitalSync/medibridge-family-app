@@ -5,6 +5,7 @@ import { useAuthStore } from '../auth/auth-store';
 import { appStorage } from '../storage/storage';
 
 const SUBSCRIPTION_KEY = 'subscription-data';
+const LOCAL_SUBSCRIPTION_ID = 900000;
 
 function subscriptionKey(userId: string): string {
   return `${SUBSCRIPTION_KEY}.${userId}`;
@@ -20,6 +21,12 @@ interface SubscriptionState {
   isPremium: boolean;
   fetchSubscription: () => Promise<void>;
   refreshSubscription: () => Promise<void>;
+  activateLocalSubscription: (plan: {
+    planType: SubscriptionPlanType;
+    billingCycle: 'MONTHLY' | 'ANNUALLY';
+    price: number;
+    displayName: string;
+  }) => void;
   clearSubscription: () => void;
 }
 
@@ -33,11 +40,12 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
     if (!userId) return;
 
     const key = subscriptionKey(userId);
+    let cachedSubscription: Subscription | null = null;
     const cached = appStorage.get(key);
     if (cached) {
       try {
-        const sub: Subscription = JSON.parse(cached);
-        set({ subscription: sub, isPremium: isPremiumSubscription(sub) });
+        cachedSubscription = JSON.parse(cached);
+        set({ subscription: cachedSubscription, isPremium: isPremiumSubscription(cachedSubscription) });
       } catch { /* ignore */ }
     }
 
@@ -52,12 +60,51 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
         set({ subscription: null, isPremium: false, isLoading: false });
       }
     } catch {
-      set({ subscription: null, isPremium: false, isLoading: false });
+      set({
+        subscription: cachedSubscription,
+        isPremium: isPremiumSubscription(cachedSubscription),
+        isLoading: false,
+      });
     }
   },
 
   refreshSubscription: async () => {
     await get().fetchSubscription();
+  },
+
+  activateLocalSubscription: (plan) => {
+    const userId = useAuthStore.getState().currentUser?.id;
+    if (!userId) return;
+
+    const startedAt = new Date();
+    const currentPeriodEnd = new Date(startedAt);
+    if (plan.billingCycle === 'ANNUALLY') {
+      currentPeriodEnd.setFullYear(currentPeriodEnd.getFullYear() + 1);
+    } else {
+      currentPeriodEnd.setMonth(currentPeriodEnd.getMonth() + 1);
+    }
+
+    const subscription: Subscription = {
+      id: LOCAL_SUBSCRIPTION_ID,
+      userId: Number(userId),
+      plan: {
+        id: LOCAL_SUBSCRIPTION_ID,
+        commercialLine: 'FAMILY',
+        planType: plan.planType,
+        billingCycle: plan.billingCycle,
+        price: plan.price,
+        currency: 'USD',
+        displayName: plan.displayName,
+        maxPatients: plan.planType === 'FREE' ? 1 : 5,
+      },
+      status: 'ACTIVE',
+      stripeCustomerId: `local-demo-user-${userId}`,
+      startedAt: startedAt.toISOString(),
+      currentPeriodEnd: currentPeriodEnd.toISOString(),
+    };
+
+    appStorage.set(subscriptionKey(userId), JSON.stringify(subscription));
+    set({ subscription, isPremium: isPremiumSubscription(subscription), isLoading: false });
   },
 
   clearSubscription: () => {
