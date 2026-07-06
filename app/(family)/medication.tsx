@@ -295,14 +295,23 @@ function HistoryTab({ medications }: { medications: Medication[] }) {
 
   return (
     <View style={tabStyles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={tabStyles.medSelector}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={tabStyles.medSelectorScroll}
+        contentContainerStyle={tabStyles.medSelector}
+      >
         {medications.map((m) => (
           <TouchableOpacity
             key={m.id}
             style={[tabStyles.medChip, selectedMedId === m.id && tabStyles.medChipActive]}
             onPress={() => setSelectedMedId(m.id)}
           >
-            <Text style={[tabStyles.medChipText, selectedMedId === m.id && tabStyles.medChipTextActive]}>
+            <Text
+              style={[tabStyles.medChipText, selectedMedId === m.id && tabStyles.medChipTextActive]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {m.name}
             </Text>
           </TouchableOpacity>
@@ -438,8 +447,9 @@ const tabStyles = StyleSheet.create({
   doseBtnText: { fontFamily, fontSize: 12, color: '#fff' },
   skipBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingHorizontal: spacing.md, paddingVertical: spacing.xs },
   skipBtnText: { fontFamily, fontSize: 12, color: colors.error },
-  medSelector: { padding: spacing.lg, gap: spacing.sm },
-  medChip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.full, backgroundColor: colors.surface, marginRight: spacing.sm },
+  medSelectorScroll: { flexGrow: 0, maxHeight: 76 },
+  medSelector: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, gap: spacing.sm, alignItems: 'center' },
+  medChip: { maxWidth: 180, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.full, backgroundColor: colors.surface, marginRight: spacing.sm },
   medChipActive: { backgroundColor: colors.primary },
   medChipText: { fontFamily, fontSize: 13, color: colors.textPrimary },
   medChipTextActive: { color: '#fff' },
