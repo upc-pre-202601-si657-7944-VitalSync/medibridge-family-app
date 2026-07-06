@@ -102,24 +102,26 @@ export function SetupStepper() {
           >
             <Card style={step.completed ? { ...styles.stepCard, ...styles.stepCardCompleted } : styles.stepCard}>
               <View style={styles.stepHeader}>
-                <View
-                  style={[
-                    styles.stepNumber,
-                    step.completed ? styles.stepNumberCompleted : styles.stepNumberPending,
-                  ]}
-                >
-                  {step.completed ? (
-                    <Feather name="check" size={20} color="#fff" />
-                  ) : (
-                    <Text style={styles.stepNumberText}>{index + 1}</Text>
-                  )}
-                </View>
-                <View style={[styles.stepIcon, { backgroundColor: step.completed ? '#dcfce7' : '#dbeafe' }]}>
-                  <Feather
-                    name={step.icon}
-                    size={24}
-                    color={step.completed ? '#16a34a' : colors.primary}
-                  />
+                <View style={styles.stepIconWrap}>
+                  <View style={[styles.stepIcon, { backgroundColor: step.completed ? '#dcfce7' : '#dbeafe' }]}>
+                    <Feather
+                      name={step.icon}
+                      size={24}
+                      color={step.completed ? '#16a34a' : colors.primary}
+                    />
+                  </View>
+                  <View
+                    style={[
+                      styles.stepBadge,
+                      step.completed ? styles.stepBadgeCompleted : styles.stepBadgePending,
+                    ]}
+                  >
+                    {step.completed ? (
+                      <Feather name="check" size={10} color="#fff" />
+                    ) : (
+                      <Text style={styles.stepBadgeText}>{index + 1}</Text>
+                    )}
+                  </View>
                 </View>
               </View>
               <View style={styles.stepContent}>
@@ -163,11 +165,24 @@ const styles = StyleSheet.create({
   stepCard: { flexDirection: 'row', alignItems: 'center', padding: spacing.lg },
   stepCardCompleted: { backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' },
   stepHeader: { marginRight: spacing.md },
-  stepNumber: { width: 32, height: 32, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.sm },
-  stepNumberCompleted: { backgroundColor: '#16a34a' },
-  stepNumberPending: { backgroundColor: colors.primaryLight },
-  stepNumberText: { fontFamily: fontFamilyBold, fontSize: 14, color: colors.primary },
+  stepIconWrap: { position: 'relative' },
   stepIcon: { width: 48, height: 48, borderRadius: radius.lg, alignItems: 'center', justifyContent: 'center' },
+  stepBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: colors.surface,
+  },
+  stepBadgeCompleted: { backgroundColor: '#16a34a' },
+  stepBadgePending: { backgroundColor: '#e2e8f0' },
+  stepBadgeText: { fontFamily: fontFamilyBold, fontSize: 10, color: colors.textMuted },
   stepContent: { flex: 1 },
   stepTitle: { fontFamily: fontFamilySemiBold, fontSize: 16, color: colors.textPrimary, marginBottom: 2 },
   stepTitleCompleted: { color: '#16a34a' },
