@@ -13,7 +13,7 @@ interface PatientInfo { id: number; fullName: string }
 export default function PatientPage() {
   const { t } = useTranslation();
   const [patient, setPatient] = useState<PatientInfo | null>(null);
-  const [patientIdInput, setPatientIdInput] = useState('');
+  const [patientFullName, setPatientFullName] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [linking, setLinking] = useState(false);
@@ -39,17 +39,20 @@ export default function PatientPage() {
 
   useEffect(() => { loadPatient(); }, [loadPatient]);
 
-  const handleLink = async () => {
+  const handleCreateAndLink = async () => {
     const familyMemberId = profilesStore.getFamilyMemberId();
-    if (!familyMemberId || !patientIdInput.trim()) return;
+    const fullName = patientFullName.trim();
+    if (!familyMemberId || !fullName) return;
     setLinking(true); setError(null);
     try {
-      await profilesApi.post(`/profiles/patients/${patientIdInput}/family-members/${familyMemberId}`, {});
-      profilesStore.setLinkedPatientId(Number(patientIdInput));
-      await loadPatient();
+      const { data } = await profilesApi.post('/profiles/patients', { fullName });
+      await profilesApi.post(`/profiles/patients/${data.id}/family-members/${familyMemberId}`, {});
+      profilesStore.setLinkedPatientId(data.id);
+      setPatient(data);
+      setPatientFullName('');
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('[patient] link failed', {
+        console.error('[patient] create/link failed', {
           status: error.response?.status,
           data: error.response?.data,
           message: error.message,
@@ -88,11 +91,15 @@ export default function PatientPage() {
         <View>
           <EmptyState icon="heart" message={t('profiles.patient.empty')} />
           <Card style={styles.linkCard}>
-            <Text style={styles.linkLabel}>{t('profiles.patient.manualLinkLabel')}</Text>
-            <TextInput value={patientIdInput} onChangeText={setPatientIdInput}
-              placeholder="123" keyboardType="numeric" />
-            <Button title={t('profiles.patient.linkSubmit')} onPress={handleLink}
-              loading={linking} disabled={!patientIdInput.trim()} />
+            <Text style={styles.linkLabel}>{t('profiles.patient.createAndLinkLabel')}</Text>
+            <TextInput
+              label={t('profiles.patient.fullName')}
+              value={patientFullName}
+              onChangeText={setPatientFullName}
+              placeholder={t('profiles.patient.fullNamePlaceholder')}
+            />
+            <Button title={t('profiles.patient.createAndLinkSubmit')} onPress={handleCreateAndLink}
+              loading={linking} disabled={!patientFullName.trim()} />
           </Card>
         </View>
       )}

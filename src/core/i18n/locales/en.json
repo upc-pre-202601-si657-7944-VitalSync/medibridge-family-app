@@ -84,8 +84,10 @@
       "loading": "Loading patient information...",
       "empty": "There is no linked patient to display yet.",
       "profileRequired": "You must create your family profile first.",
-      "manualLinkLabel": "Enter the patient ID to link it manually",
-      "linkSubmit": "Link patient"
+      "createAndLinkLabel": "Create the patient profile you will care for. We will link it automatically to your family profile.",
+      "fullName": "Patient full name",
+      "fullNamePlaceholder": "E.g. Roberto Garcia Mendez",
+      "createAndLinkSubmit": "Create and link patient"
     },
     "doctor": {
       "title": "Treating Physician",
@@ -100,7 +102,7 @@
     "errors": {
       "createFailed": "Could not create profile. Please try again.",
       "patientLoadFailed": "Could not load patient information.",
-      "patientLinkFailed": "Could not link the patient to your profile.",
+      "patientLinkFailed": "Could not create or link the patient to your profile.",
       "doctorLoadFailed": "Could not load doctor information."
     }
   },

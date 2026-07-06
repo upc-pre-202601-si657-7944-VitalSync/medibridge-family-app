@@ -84,8 +84,10 @@
       "loading": "Cargando información del paciente...",
       "empty": "Aún no hay un paciente vinculado para mostrar.",
       "profileRequired": "Primero debes crear tu perfil de familiar.",
-      "manualLinkLabel": "Ingresa el ID del paciente para vincularlo manualmente",
-      "linkSubmit": "Vincular paciente"
+      "createAndLinkLabel": "Crea el perfil del paciente que vas a cuidar. Lo vincularemos automáticamente con tu perfil familiar.",
+      "fullName": "Nombre completo del paciente",
+      "fullNamePlaceholder": "Ej. Roberto García Méndez",
+      "createAndLinkSubmit": "Crear y vincular paciente"
     },
     "doctor": {
       "title": "Médico Tratante",
@@ -100,7 +102,7 @@
     "errors": {
       "createFailed": "No se pudo crear el perfil. Intenta nuevamente.",
       "patientLoadFailed": "No se pudo cargar la información del paciente.",
-      "patientLinkFailed": "No se pudo vincular el paciente con tu perfil.",
+      "patientLinkFailed": "No se pudo crear o vincular el paciente con tu perfil.",
       "doctorLoadFailed": "No se pudo cargar la información del médico."
     }
   },
