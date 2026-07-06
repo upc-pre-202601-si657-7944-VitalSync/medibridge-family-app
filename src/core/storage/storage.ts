@@ -64,6 +64,12 @@ export const appStorage = {
       }
     }
 
+    const persisted = SecureStore.getItem(key);
+    if (persisted !== null) {
+      memoryStorage.set(key, persisted);
+      return persisted;
+    }
+
     return memoryStorage.get(key);
   },
   set(key: string, value: string): void {
@@ -77,6 +83,7 @@ export const appStorage = {
     }
 
     memoryStorage.set(key, value);
+    SecureStore.setItem(key, value);
   },
   remove(key: string): void {
     if (mmkv) {
@@ -89,5 +96,6 @@ export const appStorage = {
     }
 
     memoryStorage.delete(key);
+    SecureStore.deleteItemAsync(key).catch(() => undefined);
   },
 };
