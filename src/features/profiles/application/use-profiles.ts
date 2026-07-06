@@ -13,12 +13,18 @@ export function useFamilyProfile() {
   const [error, setError] = useState<string | null>(null);
 
   const fetch = useCallback(async () => {
+    const storedProfile = profilesStore.getFamilyProfile();
+    if (storedProfile) {
+      setProfile(storedProfile);
+    }
+
     const storedId = profilesStore.getFamilyMemberId();
     if (!storedId) { setLoading(false); return; }
     setLoading(true);
     setError(null);
     try {
       const { data } = await profilesApi.get(`/profiles/family-members/${storedId}`);
+      profilesStore.setFamilyProfile(data);
       setProfile(data);
     } catch (err) {
       if (axios.isAxiosError(err)) setError(err.response?.data?.message || err.message);
@@ -41,7 +47,7 @@ export function useCreateFamilyProfile() {
     setError(null);
     try {
       const { data } = await profilesApi.post('/profiles/family-members', payload);
-      profilesStore.setFamilyMemberId(data.id);
+      profilesStore.setFamilyProfile(data);
       return data;
     } catch (err) {
       if (axios.isAxiosError(err)) setError(err.response?.data?.message || err.message);

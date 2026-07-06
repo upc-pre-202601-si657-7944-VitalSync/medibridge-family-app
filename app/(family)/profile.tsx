@@ -23,10 +23,20 @@ export default function ProfilePage() {
 
   const loadProfile = useCallback(async () => {
     try {
+      const storedProfile = profilesStore.getFamilyProfile();
+      if (storedProfile) {
+        setProfile(storedProfile);
+        setFullName(storedProfile.fullName);
+      }
+
       const storedId = profilesStore.getFamilyMemberId();
       if (storedId) {
         const { data } = await profilesApi.get(`/profiles/family-members/${storedId}`);
-        if (data) { setProfile(data); setFullName(data.fullName ?? ''); }
+        if (data) {
+          profilesStore.setFamilyProfile(data);
+          setProfile(data);
+          setFullName(data.fullName ?? '');
+        }
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -50,7 +60,7 @@ export default function ProfilePage() {
     try {
       const { data } = await profilesApi.post('/profiles/family-members', { fullName });
       setProfile(data);
-      profilesStore.setFamilyMemberId(data.id);
+      profilesStore.setFamilyProfile(data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('[profile] create failed', {
