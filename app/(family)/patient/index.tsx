@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
+import { router, useSegments } from 'expo-router';
 import axios from 'axios';
 import { Button, TextInput, Card, Banner, LoadingSpinner, EmptyState } from '../../../src/shared/components';
 import { profilesApi } from '../../../src/core/api/services';
@@ -12,11 +13,16 @@ interface PatientInfo { id: number; fullName: string }
 
 export default function PatientPage() {
   const { t } = useTranslation();
+  const segments = useSegments();
   const [patient, setPatient] = useState<PatientInfo | null>(null);
   const [patientFullName, setPatientFullName] = useState('');
+  const [existingPatientId, setExistingPatientId] = useState('');
+  const [existingPatient, setExistingPatient] = useState<PatientInfo | null>(null);
+  const [existingPatientLookupFailed, setExistingPatientLookupFailed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [linking, setLinking] = useState(false);
+  const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadPatient = useCallback(async () => {
@@ -50,6 +56,9 @@ export default function PatientPage() {
       profilesStore.setLinkedPatientId(data.id);
       setPatient(data);
       setPatientFullName('');
+      if (segments.includes('setup')) {
+        router.replace('/(auth)/setup' as any);
+      }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('[patient] create/link failed', {
@@ -62,6 +71,53 @@ export default function PatientPage() {
     }
     finally { setLinking(false); }
   };
+
+  const handleLinkExisting = async () => {
+    const familyMemberId = profilesStore.getFamilyMemberId();
+    const patientId = existingPatient?.id ?? Number(existingPatientId.trim());
+    if (!familyMemberId || !Number.isFinite(patientId) || patientId <= 0) return;
+    setLinking(true); setError(null);
+    try {
+      await profilesApi.post(`/profiles/patients/${patientId}/family-members/${familyMemberId}`, {});
+      const { data } = await profilesApi.get(`/profiles/patients/${patientId}`);
+      profilesStore.setLinkedPatientId(patientId);
+      setPatient(data);
+      setExistingPatientId('');
+      setExistingPatient(null);
+      if (segments.includes('setup')) {
+        router.replace('/(auth)/setup' as any);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('[patient] link existing failed', {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: error.message,
+        });
+      }
+      setError(t('profiles.errors.patientLinkFailed'));
+    }
+    finally { setLinking(false); }
+  };
+
+  useEffect(() => {
+    const patientId = Number(existingPatientId.trim());
+    setExistingPatient(null);
+    setExistingPatientLookupFailed(false);
+
+    if (!Number.isFinite(patientId) || patientId <= 0) return;
+
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      setSearching(true);
+      profilesApi.get(`/profiles/patients/${patientId}`)
+        .then(({ data }) => { if (!cancelled) setExistingPatient(data); })
+        .catch(() => { if (!cancelled) setExistingPatientLookupFailed(true); })
+        .finally(() => { if (!cancelled) setSearching(false); });
+    }, 450);
+
+    return () => { cancelled = true; clearTimeout(timeout); };
+  }, [existingPatientId]);
 
   const onRefresh = useCallback(() => { setRefreshing(true); loadPatient(); }, [loadPatient]);
 
@@ -91,6 +147,7 @@ export default function PatientPage() {
         <View>
           <EmptyState icon="heart" message={t('profiles.patient.empty')} />
           <Card style={styles.linkCard}>
+            <Text style={styles.linkTitle}>{t('profiles.patient.createAndLinkTitle')}</Text>
             <Text style={styles.linkLabel}>{t('profiles.patient.createAndLinkLabel')}</Text>
             <TextInput
               label={t('profiles.patient.fullName')}
@@ -100,6 +157,30 @@ export default function PatientPage() {
             />
             <Button title={t('profiles.patient.createAndLinkSubmit')} onPress={handleCreateAndLink}
               loading={linking} disabled={!patientFullName.trim()} />
+          </Card>
+          <Card style={styles.linkCard}>
+            <Text style={styles.linkTitle}>{t('profiles.patient.linkExistingTitle')}</Text>
+            <Text style={styles.linkLabel}>{t('profiles.patient.linkExistingLabel')}</Text>
+            <TextInput
+              label={t('profiles.patient.existingPatientId')}
+              value={existingPatientId}
+              onChangeText={setExistingPatientId}
+              placeholder="1"
+              keyboardType="numeric"
+            />
+            {searching ? <Text style={styles.lookupText}>{t('profiles.patient.searchingExisting')}</Text> : null}
+            {existingPatient ? (
+              <View style={styles.foundBox}>
+                <Text style={styles.foundLabel}>{t('profiles.patient.foundExisting')}</Text>
+                <Text style={styles.foundName}>{existingPatient.fullName}</Text>
+                <Text style={styles.foundId}>ID: {existingPatient.id}</Text>
+              </View>
+            ) : null}
+            {existingPatientLookupFailed ? (
+              <Text style={styles.lookupError}>{t('profiles.patient.existingNotFound')}</Text>
+            ) : null}
+            <Button title={t('profiles.patient.linkExistingSubmit')} onPress={handleLinkExisting}
+              loading={linking} disabled={!existingPatient} />
           </Card>
         </View>
       )}
@@ -125,5 +206,12 @@ const styles = StyleSheet.create({
   warningCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, backgroundColor: colors.warningBg },
   warningText: { flex: 1, fontFamily, fontSize: 14, color: colors.warning },
   linkCard: { padding: spacing.lg, marginTop: spacing.md },
+  linkTitle: { fontFamily: fontFamilySemiBold, fontSize: 16, color: colors.textPrimary, marginBottom: spacing.xs },
   linkLabel: { fontFamily, fontSize: 14, color: colors.textSecondary, marginBottom: spacing.md },
+  foundBox: { backgroundColor: colors.primaryLight, borderRadius: radius.lg, padding: spacing.md, marginBottom: spacing.md },
+  foundLabel: { fontFamily, fontSize: 12, color: colors.primary, marginBottom: 2 },
+  foundName: { fontFamily: fontFamilySemiBold, fontSize: 16, color: colors.textPrimary },
+  foundId: { fontFamily, fontSize: 12, color: colors.textMuted, marginTop: 2 },
+  lookupText: { fontFamily, fontSize: 13, color: colors.textMuted, marginBottom: spacing.md },
+  lookupError: { fontFamily, fontSize: 13, color: colors.error, marginBottom: spacing.md },
 });

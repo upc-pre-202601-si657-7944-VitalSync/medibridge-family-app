@@ -22,11 +22,11 @@ export function PatientHeader({ onPatientPress, notificationCount = 0, onNotific
           </Text>
         </View>
         <View style={styles.patientInfo}>
-          <Text style={styles.patientName}>{profile?.fullName || 'Sin paciente'}</Text>
+            <Text style={styles.patientName}>{profile?.fullName || 'Sin familiar vinculado'}</Text>
           <View style={styles.badgeRow}>
             <View style={styles.rolePill}>
               <Feather name="heart" size={10} color={colors.primary} />
-              <Text style={styles.roleText}>Paciente</Text>
+              <Text style={styles.roleText}>Familiar vinculado</Text>
             </View>
             <PremiumBadge />
           </View>

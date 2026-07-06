@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 import { useAuthStore } from '../auth/auth-store';
-import { profilesStore } from '../storage/profiles-store';
 
 const PRODUCTION_BASE_URL = 'https://medibridge-api-gateway.onrender.com/api/v1';
 const LOCAL_IOS_BASE_URL = 'http://localhost:18080/api/v1';
@@ -44,7 +43,6 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !isClearing) {
       isClearing = true;
       try {
-        profilesStore.clear();
         await useAuthStore.getState().clearSession();
       } finally {
         isClearing = false;

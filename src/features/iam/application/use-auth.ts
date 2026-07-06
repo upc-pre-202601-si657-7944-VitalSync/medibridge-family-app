@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { api } from '../../../core/api/services';
 import { useAuthStore, decodeToken } from '../../../core/auth/auth-store';
-import { profilesStore } from '../../../core/storage/profiles-store';
 import { User } from '../domain/models';
 import { mapFrontendRoleToBackend } from '../domain/role-mapping';
 import axios from 'axios';
@@ -94,7 +93,6 @@ export function useAuth() {
   };
 
   const logout = async () => {
-    profilesStore.clear();
     await useAuthStore.getState().clearSession();
   };
 

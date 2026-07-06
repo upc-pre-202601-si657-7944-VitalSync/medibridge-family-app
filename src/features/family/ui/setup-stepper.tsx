@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { Card, Button, LoadingSpinner } from '../../../shared/components';
 import { profilesStore } from '../../../core/storage/profiles-store';
 import { colors, spacing, radius, fontFamily, fontFamilySemiBold, fontFamilyBold } from '../../../shared/theme';
@@ -19,7 +19,13 @@ interface SetupStep {
 
 export function SetupStepper() {
   const { t } = useTranslation();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [, setRefreshKey] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      setRefreshKey((key) => key + 1);
+    }, []),
+  );
 
   const hasFamilyProfile = profilesStore.getFamilyMemberId() !== null;
   const hasPatient = profilesStore.getLinkedPatientId() !== null;
@@ -68,6 +74,7 @@ export function SetupStepper() {
   };
 
   const handleFinish = () => {
+    profilesStore.setSetupFinished(true);
     router.replace('/(family)/dashboard' as any);
   };
 

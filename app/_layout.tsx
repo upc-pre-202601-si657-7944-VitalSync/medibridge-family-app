@@ -60,27 +60,21 @@ function RouteGuard() {
   const inAuth = segments[0] === '(auth)';
   const inSetup = segments.includes('setup');
 
-  const hasFamilyProfile = profilesStore.getFamilyMemberId() !== null;
-  const hasPatient = profilesStore.getLinkedPatientId() !== null;
-  const setupComplete = hasFamilyProfile && hasPatient;
+  const setupFinished = profilesStore.isSetupFinished();
 
   if (!accessToken && !inAuth) {
     return <Redirect href="/(auth)/login" />;
   }
 
   if (accessToken && inAuth && !inSetup) {
-    if (!setupComplete) {
+    if (!setupFinished) {
       return <Redirect href="/(auth)/setup" />;
     }
     return <Redirect href="/(family)/dashboard" />;
   }
 
-  if (accessToken && !inAuth && !setupComplete && !inSetup) {
+  if (accessToken && !inAuth && !setupFinished && !inSetup) {
     return <Redirect href="/(auth)/setup" />;
-  }
-
-  if (accessToken && inSetup && setupComplete) {
-    return <Redirect href="/(family)/dashboard" />;
   }
 
   return null;

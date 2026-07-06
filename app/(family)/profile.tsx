@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
+import { router, useSegments } from 'expo-router';
 import axios from 'axios';
 import { Button, TextInput, Card, Banner, LoadingSpinner } from '../../src/shared/components';
 import { profilesApi } from '../../src/core/api/services';
@@ -13,6 +14,7 @@ interface FamilyProfile { id: number; userId: number; fullName: string }
 
 export default function ProfilePage() {
   const { t } = useTranslation();
+  const segments = useSegments();
   const currentUser = useAuthStore((s) => s.currentUser);
   const [profile, setProfile] = useState<FamilyProfile | null>(null);
   const [fullName, setFullName] = useState('');
@@ -61,6 +63,9 @@ export default function ProfilePage() {
       const { data } = await profilesApi.post('/profiles/family-members', { fullName });
       setProfile(data);
       profilesStore.setFamilyProfile(data);
+      if (segments.includes('setup')) {
+        router.replace('/(auth)/setup' as any);
+      }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('[profile] create failed', {
