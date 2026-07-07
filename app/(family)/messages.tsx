@@ -1,16 +1,50 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
 import { Badge, LoadingSpinner, EmptyState, TabBar, ChatScreen } from '../../src/shared/components';
-import { communicationApi } from '../../src/core/api/services';
+import { profilesApi } from '../../src/core/api/services';
 import { useAuthStore } from '../../src/core/auth/auth-store';
+import { profilesStore } from '../../src/core/storage/profiles-store';
 import { useNotifications, useMarkNotificationRead } from '../../src/features/communication/application/use-communication';
 import { usePullToRefresh } from '../../src/shared/hooks/use-pull-to-refresh';
 import { Notification } from '../../src/features/communication/domain/models';
 import { colors, spacing, radius, fontFamily, fontFamilySemiBold, fontFamilyBold } from '../../src/shared/theme';
 
 type TabKey = 'notifications' | 'chat';
+type ChatRole = 'doctor' | 'family';
+
+interface Conversation {
+  readonly userId: number;
+  readonly name: string;
+  readonly role: ChatRole;
+  readonly description?: string;
+}
+
+interface DoctorProfile {
+  readonly id: number;
+  readonly userId: number;
+  readonly fullName: string;
+  readonly specialty?: string;
+}
+
+interface FamilyMemberProfile {
+  readonly id: number;
+  readonly userId: number;
+  readonly fullName: string;
+  readonly relationship?: string;
+}
+
+function getStoredDoctorConversation(): Conversation[] {
+  const doctor = profilesStore.getReferenceDoctor();
+  if (!doctor) return [];
+
+  return [{
+    userId: doctor.userId,
+    name: doctor.fullName,
+    role: 'doctor',
+  }];
+}
 
 export default function MessagesPage() {
   const { t } = useTranslation();
@@ -32,6 +66,7 @@ export default function MessagesPage() {
       <ChatScreen
         recipientUserId={selectedChat.userId}
         recipientName={selectedChat.name}
+        onBack={() => setSelectedChat(null)}
       />
     );
   }
@@ -115,18 +150,100 @@ function NotificationsTab({ notifications, refreshing, onRefresh, emptyMessage }
 
 function ChatTab({ onStartChat }: { onStartChat: (userId: number, name: string) => void }) {
   const { t } = useTranslation();
+  const currentUserId = useAuthStore((s) => {
+    const parsed = Number(s.currentUser?.id);
+    return Number.isFinite(parsed) ? parsed : null;
+  });
+  const [careTeamConversations, setCareTeamConversations] = useState<Conversation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const conversations = [
-    { userId: 1, name: 'Dr. Carlos Pérez', role: 'doctor' },
-    { userId: 2, name: 'Ana García', role: 'family' },
-  ];
+  const loadConversations = useCallback(async () => {
+    const patientId = profilesStore.getLinkedPatientId();
+    if (!patientId) {
+      setCareTeamConversations(getStoredDoctorConversation());
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
+
+    try {
+      const { data } = await profilesApi.get(`/profiles/patients/${patientId}/care-team-members`);
+      const doctorProfileIds = Array.isArray(data?.doctorProfileIds) ? data.doctorProfileIds : [];
+      const familyMemberProfileIds = Array.isArray(data?.familyMemberProfileIds) ? data.familyMemberProfileIds : [];
+
+      const [doctorResults, familyResults] = await Promise.all([
+        Promise.allSettled(doctorProfileIds.map((id: number) => profilesApi.get(`/profiles/doctors/${id}`))),
+        Promise.allSettled(familyMemberProfileIds.map((id: number) => profilesApi.get(`/profiles/family-members/${id}`))),
+      ]);
+
+      const doctorChats = doctorResults.flatMap((result): Conversation[] => {
+        if (result.status !== 'fulfilled' || !result.value.data) return [];
+        const doctor = result.value.data as DoctorProfile;
+        return [{
+          userId: doctor.userId,
+          name: doctor.fullName,
+          role: 'doctor',
+          description: doctor.specialty,
+        }];
+      });
+
+      const familyChats = familyResults.flatMap((result): Conversation[] => {
+        if (result.status !== 'fulfilled' || !result.value.data) return [];
+        const member = result.value.data as FamilyMemberProfile;
+        if (currentUserId !== null && Number(member.userId) === currentUserId) return [];
+        return [{
+          userId: member.userId,
+          name: member.fullName,
+          role: 'family',
+          description: member.relationship,
+        }];
+      });
+
+      const uniqueByUserId = new Map<number, Conversation>();
+      [...doctorChats, ...familyChats].forEach((conversation) => {
+        if (!uniqueByUserId.has(conversation.userId)) uniqueByUserId.set(conversation.userId, conversation);
+      });
+      setCareTeamConversations(Array.from(uniqueByUserId.values()));
+    } catch {
+      setCareTeamConversations(getStoredDoctorConversation());
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [currentUserId]);
+
+  useEffect(() => {
+    void loadConversations();
+  }, [loadConversations]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    void loadConversations();
+  };
+
+  if (loading) {
+    return (
+      <View style={tabStyles.container}>
+        <LoadingSpinner />
+      </View>
+    );
+  }
 
   return (
     <View style={tabStyles.container}>
       <FlatList
-        data={conversations}
+        data={careTeamConversations}
         keyExtractor={(item) => String(item.userId)}
         contentContainerStyle={tabStyles.list}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
         renderItem={({ item }) => (
           <TouchableOpacity
             style={tabStyles.conversationCard}
@@ -143,7 +260,7 @@ function ChatTab({ onStartChat }: { onStartChat: (userId: number, name: string) 
             <View style={tabStyles.conversationInfo}>
               <Text style={tabStyles.conversationName}>{item.name}</Text>
               <Text style={tabStyles.conversationRole}>
-                {item.role === 'doctor' ? t('chat.doctor') : t('chat.family')}
+                {item.description ?? (item.role === 'doctor' ? t('chat.doctor') : t('chat.family'))}
               </Text>
             </View>
             <Feather name="chevron-right" size={20} color={colors.textMuted} />

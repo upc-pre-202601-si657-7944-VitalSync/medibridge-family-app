@@ -106,7 +106,19 @@ const styles = StyleSheet.create({
   formPanel: { flex: 1, padding: spacing.xl, paddingTop: spacing.xxl },
   formTitle: { fontFamily: fontFamilySemiBold, fontSize: 26, color: colors.textPrimary, letterSpacing: -0.5, marginBottom: spacing.xl },
   hint: { fontFamily: fontFamily, fontSize: 13, color: colors.textMuted, marginTop: -spacing.sm, marginBottom: spacing.lg },
-  submitBtn: { marginTop: spacing.sm, shadowColor: colors.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },
+  submitBtn: {
+    marginTop: spacing.sm,
+    ...Platform.select({
+      web: { boxShadow: `0 4px 8px ${colors.primary}4d` },
+      default: {
+        shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
+      },
+    }),
+  },
   linkRow: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xxl },
   linkText: { fontFamily: fontFamily, fontSize: 14, color: colors.textMuted },
   link: { fontFamily: fontFamilySemiBold, fontSize: 14, color: colors.primary },

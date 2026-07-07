@@ -105,6 +105,7 @@
       "empty": "There is no treating physician selected yet.",
       "backendGap": "We still cannot resolve the treating physician automatically from the current backend.",
       "referenceSelected": "Selected doctor for family follow-up",
+      "assignmentSaved": "Doctor assigned. You can finish setup.",
       "availableTitle": "Available doctors",
       "availableDescription": "Choose an available doctor to associate with the family follow-up.",
       "availableRole": "Available doctor",
@@ -117,7 +118,8 @@
       "createFailed": "Could not create profile. Please try again.",
       "patientLoadFailed": "Could not load linked person information.",
       "patientLinkFailed": "Could not create or link the person to your profile.",
-      "doctorLoadFailed": "Could not load doctor information."
+      "doctorLoadFailed": "Could not load doctor information.",
+      "doctorAssignFailed": "Could not assign the doctor. You can try again."
     }
   },
   "dashboard": {
@@ -452,14 +454,24 @@
     "autoRenew": "Auto Renew",
     "manage": "Manage Subscription",
     "manageDesc": "Change plan or cancel",
+    "changePlan": "Change plan",
+    "changePlanDesc": "Paid plans activate after completing Stripe Checkout.",
+    "currentPlan": "Current plan",
+    "cancel": "Cancel subscription",
     "noSubscription": "You don't have an active subscription",
     "noSubscriptionDesc": "Choose a plan to access premium family network features",
     "viewPlans": "View Plans",
     "free": "Free",
     "checkoutUnavailable": "Checkout unavailable",
     "checkoutUnavailableDesc": "We could not start plan activation. Try again in a few minutes.",
+    "checkoutCancelled": "Checkout cancelled. You can try again whenever you want.",
+    "checkoutConfirming": "Confirming Stripe payment...",
+    "checkoutConfirmed": "Stripe payment confirmed. The subscription is now active.",
+    "stripeCheckout": "Secure payment with Stripe",
+    "cancelFailed": "Could not cancel the subscription. Please try again.",
     "activatedTitle": "Plan activated",
     "activatedDesc": "Your subscription is now active for this account.",
+    "cancelledDesc": "The local subscription was cancelled. You can choose another plan.",
     "plans": {
       "free": "Family Free Plan",
       "premiumMonthly": "Family Premium Plan",

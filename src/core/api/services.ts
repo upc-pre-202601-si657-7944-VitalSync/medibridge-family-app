@@ -3,14 +3,14 @@ import { Platform } from 'react-native';
 import { useAuthStore } from '../auth/auth-store';
 
 const PRODUCTION_BASE_URL = 'https://medibridge-api-gateway.onrender.com/api/v1';
-const LOCAL_IOS_BASE_URL = 'http://localhost:18080/api/v1';
-const LOCAL_ANDROID_EMULATOR_BASE_URL = 'http://10.0.2.2:18080/api/v1';
+const LOCAL_WEB_IOS_BASE_URL = 'http://localhost:8080/api/v1';
+const LOCAL_ANDROID_EMULATOR_BASE_URL = 'http://10.0.2.2:8080/api/v1';
 
 const customBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
 
 const BASE_URL = customBaseUrl
   || (__DEV__
-    ? (Platform.OS === 'android' ? LOCAL_ANDROID_EMULATOR_BASE_URL : LOCAL_IOS_BASE_URL)
+    ? (Platform.OS === 'android' ? LOCAL_ANDROID_EMULATOR_BASE_URL : LOCAL_WEB_IOS_BASE_URL)
     : PRODUCTION_BASE_URL);
 
 export const api = axios.create({

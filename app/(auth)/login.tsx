@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button, TextInput, Banner, Logo } from '../../src/shared/components';
 import { useAuth } from '../../src/features/iam/application/use-auth';
+import { subscriptionCheckoutStore } from '../../src/core/storage/subscription-checkout-store';
 import { colors, spacing, radius, fontFamily, fontFamilySemiBold } from '../../src/shared/theme';
 
 export default function LoginPage() {
@@ -17,7 +18,14 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     const ok = await login({ username, password });
-    if (ok) router.replace('/(family)/dashboard');
+    if (!ok) return;
+
+    if (subscriptionCheckoutStore.getPending()) {
+      router.replace('/(family)/subscription');
+      return;
+    }
+
+    router.replace('/(family)/dashboard');
   };
 
   return (
@@ -125,7 +133,19 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     marginBottom: spacing.xxl,
   },
-  submitBtn: { marginTop: spacing.sm, shadowColor: colors.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 },
+  submitBtn: {
+    marginTop: spacing.sm,
+    ...Platform.select({
+      web: { boxShadow: `0 4px 8px ${colors.primary}4d` },
+      default: {
+        shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
+      },
+    }),
+  },
   linkRow: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xxl },
   linkText: { fontFamily: fontFamily, fontSize: 14, color: colors.textMuted },
   link: { fontFamily: fontFamilySemiBold, fontSize: 14, color: colors.primary },

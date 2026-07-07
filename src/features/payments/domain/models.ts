@@ -54,6 +54,21 @@ export interface CreateSubscriptionPayload {
   readonly paymentMethodId: number;
 }
 
+export interface CreateCheckoutSessionPayload {
+  readonly userId: number;
+  readonly commercialLine: CommercialLine;
+  readonly planType: SubscriptionPlanType;
+  readonly billingCycle: BillingCycle;
+}
+
+export interface CheckoutSessionResponse {
+  readonly checkoutUrl: string;
+}
+
+export interface ConfirmCheckoutSessionPayload {
+  readonly sessionId: string;
+}
+
 export interface AddPaymentMethodPayload {
   readonly userId: number;
   readonly type: PaymentMethodType;

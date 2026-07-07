@@ -45,7 +45,7 @@ export default function CareTeamPage() {
     };
 
     try {
-      const { data } = await profilesApi.get(`/internal/profiles/patients/${patientId}/care-team-members`);
+      const { data } = await profilesApi.get(`/profiles/patients/${patientId}/care-team-members`);
       const doctorProfileIds = Array.isArray(data?.doctorProfileIds) ? data.doctorProfileIds : [];
       const familyMemberProfileIds = Array.isArray(data?.familyMemberProfileIds) ? data.familyMemberProfileIds : [];
 

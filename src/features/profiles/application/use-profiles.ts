@@ -107,7 +107,7 @@ export function useCareTeam() {
     if (!patientId) { setLoading(false); return; }
     setLoading(true);
     try {
-      const { data } = await profilesApi.get(`/internal/profiles/patients/${patientId}/care-team-members`);
+      const { data } = await profilesApi.get(`/profiles/patients/${patientId}/care-team-members`);
       setCareTeam(data);
     } catch { setCareTeam(null); }
     finally { setLoading(false); }

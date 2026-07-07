@@ -29,6 +29,7 @@ export function SetupStepper() {
 
   const hasFamilyProfile = profilesStore.getFamilyMemberId() !== null;
   const hasPatient = profilesStore.getLinkedPatientId() !== null;
+  const hasReferenceDoctor = profilesStore.getReferenceDoctor() !== null;
 
   const steps: SetupStep[] = [
     {
@@ -64,7 +65,7 @@ export function SetupStepper() {
       descriptionKey: 'setup.step4.description',
       icon: 'activity',
       route: '/(auth)/setup/doctor',
-      completed: false,
+      completed: hasReferenceDoctor,
       required: false,
     },
   ];

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import axios from 'axios';
 import { paymentsApi } from '../api/services';
 import { Subscription, SubscriptionPlanType } from '../../features/payments/domain/models';
 import { useAuthStore } from '../auth/auth-store';
@@ -21,12 +22,14 @@ interface SubscriptionState {
   isPremium: boolean;
   fetchSubscription: () => Promise<void>;
   refreshSubscription: () => Promise<void>;
+  storeSubscription: (subscription: Subscription) => void;
   activateLocalSubscription: (plan: {
     planType: SubscriptionPlanType;
     billingCycle: 'MONTHLY' | 'ANNUALLY';
     price: number;
     displayName: string;
   }) => void;
+  cancelRemoteSubscription: (subscriptionId: number) => Promise<boolean>;
   clearSubscription: () => void;
 }
 
@@ -59,7 +62,13 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
       } else {
         set({ subscription: null, isPremium: false, isLoading: false });
       }
-    } catch {
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        appStorage.remove(key);
+        set({ subscription: null, isPremium: false, isLoading: false });
+        return;
+      }
+
       set({
         subscription: cachedSubscription,
         isPremium: isPremiumSubscription(cachedSubscription),
@@ -70,6 +79,14 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 
   refreshSubscription: async () => {
     await get().fetchSubscription();
+  },
+
+  storeSubscription: (subscription) => {
+    const userId = useAuthStore.getState().currentUser?.id;
+    if (!userId) return;
+
+    appStorage.set(subscriptionKey(userId), JSON.stringify(subscription));
+    set({ subscription, isPremium: isPremiumSubscription(subscription), isLoading: false });
   },
 
   activateLocalSubscription: (plan) => {
@@ -105,6 +122,27 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
 
     appStorage.set(subscriptionKey(userId), JSON.stringify(subscription));
     set({ subscription, isPremium: isPremiumSubscription(subscription), isLoading: false });
+  },
+
+  cancelRemoteSubscription: async (subscriptionId) => {
+    const userId = useAuthStore.getState().currentUser?.id;
+    const currentSubscription = get().subscription;
+
+    if (currentSubscription?.id === LOCAL_SUBSCRIPTION_ID
+      || currentSubscription?.stripeCustomerId?.startsWith('local-demo-user-')) {
+      if (userId) appStorage.remove(subscriptionKey(userId));
+      set({ subscription: null, isPremium: false });
+      return true;
+    }
+
+    try {
+      await paymentsApi.post(`/subscriptions/${subscriptionId}/cancel`);
+      if (userId) appStorage.remove(subscriptionKey(userId));
+      set({ subscription: null, isPremium: false });
+      return true;
+    } catch {
+      return false;
+    }
   },
 
   clearSubscription: () => {

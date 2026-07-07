@@ -20,6 +20,7 @@
     "i18next": "^26.3.4",
     "jwt-decode": "^4.0.0",
     "react": "19.2.3",
+    "react-dom": "^19.2.3",
     "react-i18next": "^17.0.8",
     "react-native": "0.86.0",
     "react-native-gesture-handler": "~2.32.0",
@@ -29,6 +30,7 @@
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "4.25.2",
     "react-native-svg": "^15.15.4",
+    "react-native-web": "^0.21.2",
     "react-native-worklets": "^0.10.0",
     "zustand": "^5.0.14"
   },
@@ -38,9 +40,14 @@
   },
   "scripts": {
     "start": "expo start",
+    "start:clear": "expo start --clear",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "doctor": "npx --yes expo-doctor",
+    "deps:check": "npx expo install --check",
+    "check": "npm run typecheck && npm run doctor && npm run deps:check"
   },
   "private": true
 }

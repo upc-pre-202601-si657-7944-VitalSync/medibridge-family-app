@@ -4,6 +4,7 @@ import { Stack, Redirect, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { useAuthStore } from '../src/core/auth/auth-store';
 import { profilesStore } from '../src/core/storage/profiles-store';
+import { subscriptionCheckoutStore } from '../src/core/storage/subscription-checkout-store';
 import { ActivityIndicator, View, StatusBar } from 'react-native';
 import { colors } from '../src/shared/theme';
 import {
@@ -59,11 +60,21 @@ function RouteGuard() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const inAuth = segments[0] === '(auth)';
   const inSetup = segments.includes('setup');
+  const inStripeReturn = segments[0] === 'subscriptions';
+  const hasPendingCheckout = subscriptionCheckoutStore.getPending() !== null;
 
   const setupFinished = profilesStore.isSetupFinished();
 
-  if (!accessToken && !inAuth) {
+  if (!accessToken && !inAuth && !inStripeReturn) {
     return <Redirect href="/(auth)/login" />;
+  }
+
+  if (accessToken && inAuth && hasPendingCheckout) {
+    return <Redirect href="/(family)/subscription" />;
+  }
+
+  if (inStripeReturn) {
+    return null;
   }
 
   if (accessToken && inAuth && !inSetup) {

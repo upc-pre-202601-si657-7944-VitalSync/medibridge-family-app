@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { router } from 'expo-router';
 import { useAuthStore } from '../../core/auth/auth-store';
 import { useChatMessages, useSendMessage } from '../../features/communication/application/use-communication';
 import { ChatMessage } from '../../features/communication/domain/models';
@@ -11,9 +10,10 @@ import { colors, spacing, radius, fontFamily, fontFamilySemiBold, fontFamilyBold
 interface ChatScreenProps {
   recipientUserId: number;
   recipientName: string;
+  onBack: () => void;
 }
 
-export function ChatScreen({ recipientUserId, recipientName }: ChatScreenProps) {
+export function ChatScreen({ recipientUserId, recipientName, onBack }: ChatScreenProps) {
   const { t } = useTranslation();
   const currentUser = useAuthStore((s) => s.currentUser);
   const currentUserId = currentUser?.id ? Number(currentUser.id) : 0;
@@ -68,7 +68,7 @@ export function ChatScreen({ recipientUserId, recipientName }: ChatScreenProps) 
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={onBack} style={styles.backButton}>
           <Feather name="arrow-left" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <View style={styles.headerInfo}>

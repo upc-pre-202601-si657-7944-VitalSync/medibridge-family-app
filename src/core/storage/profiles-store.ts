@@ -164,6 +164,9 @@ export const profilesStore = {
   setReferenceDoctor(profile: StoredDoctorProfile): void {
     appStorage.set(scopedKey(REFERENCE_DOCTOR_PROFILE_KEY), JSON.stringify(profile));
   },
+  clearReferenceDoctor(): void {
+    appStorage.remove(scopedKey(REFERENCE_DOCTOR_PROFILE_KEY));
+  },
   clear(): void {
     appStorage.remove(scopedKey(FAMILY_MEMBER_ID_KEY));
     appStorage.remove(scopedKey(FAMILY_MEMBER_PROFILE_KEY));

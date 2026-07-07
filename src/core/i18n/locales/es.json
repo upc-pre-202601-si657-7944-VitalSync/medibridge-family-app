@@ -105,6 +105,7 @@
       "empty": "Aún no hay un médico tratante seleccionado.",
       "backendGap": "Aún no podemos resolver automáticamente el médico tratante desde el backend actual.",
       "referenceSelected": "Médico seleccionado para el seguimiento familiar",
+      "assignmentSaved": "Médico asignado. Puedes finalizar la configuración.",
       "availableTitle": "Médicos disponibles",
       "availableDescription": "Elige un médico disponible para asociarlo al seguimiento familiar.",
       "availableRole": "Médico disponible",
@@ -117,7 +118,8 @@
       "createFailed": "No se pudo crear el perfil. Intenta nuevamente.",
       "patientLoadFailed": "No se pudo cargar la información de la persona vinculada.",
       "patientLinkFailed": "No se pudo crear o vincular la persona con tu perfil.",
-      "doctorLoadFailed": "No se pudo cargar la información del médico."
+      "doctorLoadFailed": "No se pudo cargar la información del médico.",
+      "doctorAssignFailed": "No se pudo asignar el médico. Puedes volver a intentarlo."
     }
   },
   "dashboard": {
@@ -452,14 +454,24 @@
     "autoRenew": "Renovación Automática",
     "manage": "Gestionar Suscripción",
     "manageDesc": "Cambiar plan o cancelar",
+    "changePlan": "Cambiar plan",
+    "changePlanDesc": "Los planes pagos se activan después de completar Stripe Checkout.",
+    "currentPlan": "Plan actual",
+    "cancel": "Cancelar suscripción",
     "noSubscription": "No tienes una suscripción activa",
     "noSubscriptionDesc": "Elige un plan para acceder a las funciones premium de la red familiar",
     "viewPlans": "Ver Planes",
     "free": "Gratis",
     "checkoutUnavailable": "Checkout no disponible",
     "checkoutUnavailableDesc": "No pudimos iniciar la activación del plan. Intenta nuevamente en unos minutos.",
+    "checkoutCancelled": "Checkout cancelado. Puedes volver a intentarlo cuando quieras.",
+    "checkoutConfirming": "Confirmando pago de Stripe...",
+    "checkoutConfirmed": "Pago confirmado por Stripe. La suscripción quedó activa.",
+    "stripeCheckout": "Pago seguro con Stripe",
+    "cancelFailed": "No se pudo cancelar la suscripción. Intenta nuevamente.",
     "activatedTitle": "Plan activado",
     "activatedDesc": "Tu suscripción ya está activa para esta cuenta.",
+    "cancelledDesc": "La suscripción local fue cancelada. Puedes elegir otro plan.",
     "plans": {
       "free": "Plan Gratuito Familiar",
       "premiumMonthly": "Plan Premium Familiar",

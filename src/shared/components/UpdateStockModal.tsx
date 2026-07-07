@@ -76,7 +76,16 @@ const styles = StyleSheet.create({
   container: { width: '100%', maxWidth: 400 },
   card: {
     backgroundColor: colors.surface, borderRadius: 16, padding: spacing.xl,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 8,
+    ...Platform.select({
+      web: { boxShadow: '0 4px 8px rgba(0,0,0,0.2)' },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 8,
+      },
+    }),
   },
   title: { fontFamily: fontFamilyBold, fontSize: 18, color: colors.textPrimary, marginBottom: spacing.md },
   medName: { fontFamily: fontFamilyBold, fontSize: 16, color: colors.primary, marginBottom: spacing.sm },
