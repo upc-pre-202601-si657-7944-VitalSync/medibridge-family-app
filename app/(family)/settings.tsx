@@ -58,6 +58,19 @@ export default function SettingsPage() {
         </Card>
       </TouchableOpacity>
 
+      <TouchableOpacity onPress={() => router.push('/(family)/patient')} activeOpacity={0.7}>
+        <Card style={styles.settingCard}>
+          <View style={[styles.icon, { backgroundColor: '#fce7f3' }]}>
+            <Feather name="heart" size={20} color="#db2777" />
+          </View>
+          <View style={styles.info}>
+            <Text style={styles.label}>{t('profiles.sidebar.patient')}</Text>
+            <Text style={styles.desc}>{t('profiles.patient.description')}</Text>
+          </View>
+          <Feather name="chevron-right" size={20} color={colors.textMuted} />
+        </Card>
+      </TouchableOpacity>
+
       {/* Suscripción */}
       <Text style={styles.sectionTitle}>{t('settings.subscription')}</Text>
 

@@ -23,7 +23,6 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { route: '/(family)/dashboard', icon: 'grid', labelKey: 'profiles.sidebar.dashboard' },
   { route: '/(family)/profile', icon: 'user', labelKey: 'profiles.sidebar.familyProfile' },
-  { route: '/(family)/patient', icon: 'heart', labelKey: 'profiles.sidebar.patient' },
   { route: '/(family)/doctor', icon: 'activity', labelKey: 'profiles.sidebar.doctor' },
   { route: '/(family)/care-team', icon: 'users', labelKey: 'profiles.sidebar.careTeam' },
   { route: '/(family)/appointments', icon: 'calendar', labelKey: 'profiles.sidebar.appointments' },

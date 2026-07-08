@@ -87,6 +87,7 @@ export default function DashboardPage() {
     <View style={styles.container}>
       <PatientHeader
         notificationCount={notificationCount}
+        onPatientPress={() => router.push('/(family)/patient')}
         onNotificationPress={() => router.push('/(family)/messages')}
       />
       <ScrollView

@@ -49,10 +49,7 @@ export default function FamilyLayout() {
         />
         <Drawer.Screen
           name="patient/index"
-          options={{
-            title: t('profiles.sidebar.patient'),
-            drawerIcon: ({ color, size }) => <Feather name="heart" size={size} color={color} />,
-          }}
+          options={{ drawerItemStyle: { display: 'none' }, title: t('profiles.sidebar.patient') }}
         />
         <Drawer.Screen
           name="patient/[id]"
