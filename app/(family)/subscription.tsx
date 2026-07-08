@@ -9,12 +9,22 @@ import { useSubscriptionStore } from '../../src/core/storage/subscription-store'
 import { subscriptionCheckoutStore } from '../../src/core/storage/subscription-checkout-store';
 import { paymentsApi } from '../../src/core/api/services';
 import { useAuthStore } from '../../src/core/auth/auth-store';
+
 import {
   CheckoutSessionResponse,
   CreateCheckoutSessionPayload,
   Subscription,
 } from '../../src/features/payments/domain/models';
 import { colors, spacing, radius, fontFamily, fontFamilySemiBold, fontFamilyBold } from '../../src/shared/theme';
+
+interface Invoice {
+  id: number;
+  subscriptionId: number;
+  amount: number;
+  currency: string;
+  status: string;
+  issuedAt: string;
+}
 
 const demoPlans = [
   { planType: 'FREE', billingCycle: 'MONTHLY', price: 0, labelKey: 'subscription.plans.free' },
@@ -38,10 +48,31 @@ export default function SubscriptionPage() {
   const [error, setError] = useState<string | null>(null);
   const [processingPlanKey, setProcessingPlanKey] = useState<string | null>(null);
   const [confirmingCheckout, setConfirmingCheckout] = useState(false);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [invoicesLoading, setInvoicesLoading] = useState(false);
+
+  const loadInvoices = async () => {
+    if (!currentUser?.id) return;
+    setInvoicesLoading(true);
+    try {
+      const { data } = await paymentsApi.get(`/invoices/users/${currentUser.id}`);
+      if (Array.isArray(data)) setInvoices(data);
+    } catch {
+      // silencioso
+    } finally {
+      setInvoicesLoading(false);
+    }
+  };
 
   const loadSubscription = async () => {
     await fetchSubscription();
     setRefreshing(false);
+  };
+
+  const getInvoiceStatusColor = (status: string): 'green' | 'yellow' | 'red' => {
+    if (status === 'PAID') return 'green';
+    if (status === 'FAILED') return 'red';
+    return 'yellow';
   };
 
   const getApiErrorMessage = (requestError: unknown) => {
@@ -132,6 +163,7 @@ export default function SubscriptionPage() {
 
   useEffect(() => {
     loadSubscription();
+    loadInvoices();
   }, []);
 
   useEffect(() => {
@@ -321,39 +353,114 @@ export default function SubscriptionPage() {
               </TouchableOpacity>
             </View>
           ) : null}
+
+          <View style={styles.invoicesSection}>
+            <View style={styles.invoicesSectionHeader}>
+              <View style={[styles.icon, { backgroundColor: '#dbeafe' }]}>
+                <Feather name="file-text" size={20} color={colors.primary} />
+              </View>
+              <Text style={styles.invoicesSectionTitle}>{t('invoices.title')}</Text>
+            </View>
+
+            {invoicesLoading ? (
+              <Text style={styles.invoicesLoadingText}>{t('common.loading')}</Text>
+            ) : invoices.length === 0 ? (
+              <Card style={styles.invoicesEmpty}>
+                <Feather name="inbox" size={32} color={colors.textMuted} style={{ alignSelf: 'center', marginBottom: spacing.sm }} />
+                <Text style={styles.invoicesEmptyText}>{t('invoices.empty')}</Text>
+              </Card>
+            ) : (
+              invoices.map((invoice) => (
+                <Card key={invoice.id} style={styles.invoiceCard}>
+                  <View style={styles.invoiceRow}>
+                    <View style={styles.invoiceLeft}>
+                      <Text style={styles.invoiceId}>{t('invoices.invoiceId')} #{invoice.id}</Text>
+                      <Text style={styles.invoiceDate}>{new Date(invoice.issuedAt).toLocaleDateString()}</Text>
+                    </View>
+                    <View style={styles.invoiceRight}>
+                      <Text style={styles.invoiceAmount}>{invoice.amount} {invoice.currency}</Text>
+                      <Badge label={invoice.status} color={getInvoiceStatusColor(invoice.status)} />
+                    </View>
+                  </View>
+                </Card>
+              ))
+            )}
+          </View>
         </>
       ) : (
-        <Card style={styles.emptyCard}>
-          <View style={styles.emptyIcon}>
-            <Feather name="alert-circle" size={48} color={colors.textMuted} />
+        <View style={styles.pricingContainer}>
+          <View style={styles.heroSection}>
+            <View style={styles.heroIconWrap}>
+              <Feather name="zap" size={32} color={colors.primary} />
+            </View>
+            <Text style={styles.heroTitle}>{t('subscription.noSubscription')}</Text>
+            <Text style={styles.heroDesc}>{t('subscription.noSubscriptionDesc')}</Text>
           </View>
-          <Text style={styles.emptyTitle}>{t('subscription.noSubscription')}</Text>
-          <Text style={styles.emptyDesc}>{t('subscription.noSubscriptionDesc')}</Text>
-          <View style={styles.planList}>
-            {demoPlans.map((plan) => (
-              <TouchableOpacity
-                key={`${plan.planType}-${plan.billingCycle}`}
-                activeOpacity={0.75}
-                onPress={() => { void handlePlanSelection(plan); }}
-                disabled={Boolean(processingPlanKey) || confirmingCheckout}
-              >
-                <View style={styles.planCard}>
-                  <View>
-                    <Text style={styles.planTitle}>{t(plan.labelKey)}</Text>
-                    <Text style={styles.planMeta}>
-                      {plan.price > 0 ? t('subscription.stripeCheckout') : plan.billingCycle}
-                    </Text>
+
+          <View style={styles.pricingList}>
+            {demoPlans.map((plan, index) => {
+              const planKey = `${plan.planType}-${plan.billingCycle}`;
+              const isProcessing = processingPlanKey === planKey;
+              const isFeatured = index === 1;
+
+              return (
+                <TouchableOpacity
+                  key={planKey}
+                  activeOpacity={0.8}
+                  onPress={() => { void handlePlanSelection(plan); }}
+                  disabled={Boolean(processingPlanKey) || confirmingCheckout}
+                >
+                  <View style={[styles.pricingCard, isFeatured && styles.pricingCardFeatured]}>
+                    {isFeatured ? (
+                      <View style={styles.featuredBadge}>
+                        <Text style={styles.featuredBadgeText}>{t('subscription.mostPopular') ?? 'Más popular'}</Text>
+                      </View>
+                    ) : null}
+
+                    <View style={styles.pricingCardHeader}>
+                      <View style={[styles.pricingIcon, isFeatured && styles.pricingIconFeatured]}>
+                        <Feather
+                          name={plan.price === 0 ? 'gift' : plan.billingCycle === 'ANNUALLY' ? 'star' : 'shield'}
+                          size={20}
+                          color={isFeatured ? colors.surface : colors.primary}
+                        />
+                      </View>
+                      <View style={styles.pricingCardInfo}>
+                        <Text style={[styles.pricingCardTitle, isFeatured && styles.pricingCardTitleFeatured]}>
+                          {t(plan.labelKey)}
+                        </Text>
+                        <Text style={[styles.pricingCardMeta, isFeatured && styles.pricingCardMetaFeatured]}>
+                          {plan.price > 0 ? t('subscription.stripeCheckout') : plan.billingCycle}
+                        </Text>
+                      </View>
+                      <View style={styles.pricingCardPriceWrap}>
+                        <Text style={[styles.pricingCardPrice, isFeatured && styles.pricingCardPriceFeatured]}>
+                          {isProcessing
+                            ? t('common.loading')
+                            : plan.price === 0
+                              ? t('subscription.free')
+                              : `$${plan.price}`}
+                        </Text>
+                        {plan.price > 0 ? (
+                          <Text style={[styles.pricingCardPeriod, isFeatured && styles.pricingCardPeriodFeatured]}>
+                            /{plan.billingCycle === 'ANNUALLY' ? t('subscription.year') ?? 'año' : t('subscription.month') ?? 'mes'}
+                          </Text>
+                        ) : null}
+                      </View>
+                    </View>
+
+                    <View style={[styles.pricingCta, isFeatured && styles.pricingCtaFeatured]}>
+                      <Text style={[styles.pricingCtaText, isFeatured && styles.pricingCtaTextFeatured]}>
+                        {isProcessing ? t('common.loading') : t('subscription.selectPlan') ?? 'Seleccionar plan'}
+                      </Text>
+                      {!isProcessing ? <Feather name="arrow-right" size={16} color={isFeatured ? colors.surface : colors.primary} /> : null}
+                    </View>
                   </View>
-                  <Text style={styles.planPrice}>
-                    {processingPlanKey === `${plan.planType}-${plan.billingCycle}`
-                      ? t('common.loading')
-                      : plan.price === 0 ? t('subscription.free') : `$${plan.price}`}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              );
+            })}
           </View>
-        </Card>
+        </View>
       )}
     </ScrollView>
   );
@@ -381,10 +488,33 @@ const styles = StyleSheet.create({
   managerPanel: { marginBottom: spacing.lg },
   managerTitle: { fontFamily: fontFamilySemiBold, fontSize: 18, color: colors.textPrimary, marginBottom: spacing.xs },
   managerDesc: { fontFamily, fontSize: 14, color: colors.textMuted, marginBottom: spacing.md },
-  emptyCard: { alignItems: 'center', paddingVertical: spacing.xxxl },
-  emptyIcon: { marginBottom: spacing.lg },
-  emptyTitle: { fontFamily: fontFamilyBold, fontSize: 18, color: colors.textPrimary, marginBottom: spacing.sm, textAlign: 'center' },
-  emptyDesc: { fontFamily, fontSize: 14, color: colors.textMuted, textAlign: 'center', marginBottom: spacing.xl, lineHeight: 20 },
+  pricingContainer: { gap: spacing.xl },
+  heroSection: { alignItems: 'center', paddingVertical: spacing.xl, paddingHorizontal: spacing.lg, backgroundColor: colors.surface, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.borderLight },
+  heroIconWrap: { width: 64, height: 64, borderRadius: radius.full, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md },
+  heroTitle: { fontFamily: fontFamilyBold, fontSize: 20, color: colors.textPrimary, textAlign: 'center', marginBottom: spacing.sm },
+  heroDesc: { fontFamily, fontSize: 14, color: colors.textMuted, textAlign: 'center', lineHeight: 20 },
+  pricingList: { gap: spacing.md },
+  pricingCard: { backgroundColor: colors.surface, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.borderLight, padding: spacing.lg, overflow: 'hidden' },
+  pricingCardFeatured: { backgroundColor: colors.primary, borderColor: colors.primary },
+  featuredBadge: { alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, marginBottom: spacing.md },
+  featuredBadgeText: { fontFamily: fontFamilySemiBold, fontSize: 11, color: colors.surface, letterSpacing: 0.5 },
+  pricingCardHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  pricingIcon: { width: 40, height: 40, borderRadius: radius.lg, backgroundColor: colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
+  pricingIconFeatured: { backgroundColor: 'rgba(255,255,255,0.2)' },
+  pricingCardInfo: { flex: 1 },
+  pricingCardTitle: { fontFamily: fontFamilySemiBold, fontSize: 15, color: colors.textPrimary },
+  pricingCardTitleFeatured: { color: colors.surface },
+  pricingCardMeta: { fontFamily, fontSize: 12, color: colors.textMuted, marginTop: 2 },
+  pricingCardMetaFeatured: { color: 'rgba(255,255,255,0.7)' },
+  pricingCardPriceWrap: { alignItems: 'flex-end' },
+  pricingCardPrice: { fontFamily: fontFamilyBold, fontSize: 20, color: colors.primary },
+  pricingCardPriceFeatured: { color: colors.surface },
+  pricingCardPeriod: { fontFamily, fontSize: 11, color: colors.textMuted },
+  pricingCardPeriodFeatured: { color: 'rgba(255,255,255,0.7)' },
+  pricingCta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginTop: spacing.lg, paddingVertical: spacing.md, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.primaryLight, backgroundColor: colors.primaryLight },
+  pricingCtaFeatured: { backgroundColor: 'rgba(255,255,255,0.15)', borderColor: 'rgba(255,255,255,0.3)' },
+  pricingCtaText: { fontFamily: fontFamilySemiBold, fontSize: 14, color: colors.primary },
+  pricingCtaTextFeatured: { color: colors.surface },
   planList: { width: '100%', gap: spacing.md },
   planCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.md, borderWidth: 1, borderColor: colors.borderLight, borderRadius: radius.lg, backgroundColor: colors.surface },
   planCardSelected: { borderColor: '#16a34a', backgroundColor: '#f0fdf4' },
@@ -405,4 +535,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.errorBg,
   },
   cancelText: { fontFamily: fontFamilySemiBold, fontSize: 14, color: colors.error },
+  invoicesSection: { marginTop: spacing.xl },
+  invoicesSectionHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.md },
+  invoicesSectionTitle: { fontFamily: fontFamilySemiBold, fontSize: 17, color: colors.textPrimary },
+  invoicesLoadingText: { fontFamily, fontSize: 14, color: colors.textMuted, textAlign: 'center', paddingVertical: spacing.lg },
+  invoicesEmpty: { alignItems: 'center', paddingVertical: spacing.xl },
+  invoicesEmptyText: { fontFamily, fontSize: 14, color: colors.textMuted, textAlign: 'center' },
+  invoiceCard: { marginBottom: spacing.sm },
+  invoiceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  invoiceLeft: { flex: 1 },
+  invoiceId: { fontFamily: fontFamilySemiBold, fontSize: 14, color: colors.textPrimary },
+  invoiceDate: { fontFamily, fontSize: 12, color: colors.textMuted, marginTop: 2 },
+  invoiceRight: { alignItems: 'flex-end', gap: spacing.xs },
+  invoiceAmount: { fontFamily: fontFamilyBold, fontSize: 15, color: colors.textPrimary },
 });

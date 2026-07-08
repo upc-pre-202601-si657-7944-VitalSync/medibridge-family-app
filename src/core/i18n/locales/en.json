@@ -472,6 +472,10 @@
     "activatedTitle": "Plan activated",
     "activatedDesc": "Your subscription is now active for this account.",
     "cancelledDesc": "The local subscription was cancelled. You can choose another plan.",
+    "mostPopular": "Most popular",
+    "selectPlan": "Select plan",
+    "month": "month",
+    "year": "year",
     "plans": {
       "free": "Family Free Plan",
       "premiumMonthly": "Family Premium Plan",
