@@ -21,6 +21,7 @@ export default function MedicationPage() {
   const [showDoseForm, setShowDoseForm] = useState(false);
   const [showSkipForm, setShowSkipForm] = useState(false);
   const [showStockModal, setShowStockModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedMed, setSelectedMed] = useState<Medication | null>(null);
   const [selectedSchedule, setSelectedSchedule] = useState<MedicationSchedule | null>(null);
 
@@ -84,7 +85,7 @@ export default function MedicationPage() {
           alerts={alerts}
           refreshing={refreshing}
           onRefresh={onRefresh}
-          onMedPress={(med) => setSelectedMed(med)}
+          onMedPress={(med) => { setSelectedMed(med); setShowDetailModal(true); }}
           onAddSchedule={(med) => { setSelectedMed(med); setShowScheduleForm(true); }}
           onUpdateStock={(med) => { setSelectedMed(med); setShowStockModal(true); }}
           emptyMessage={t('medication.empty')}
@@ -146,11 +147,11 @@ export default function MedicationPage() {
 
       {selectedMed && (
         <MedicationDetailModal
-          visible={!!selectedMed}
+          visible={showDetailModal}
           medication={selectedMed}
-          onClose={() => setSelectedMed(null)}
-          onAddSchedule={() => { setShowScheduleForm(true); }}
-          onUpdateStock={() => { setShowStockModal(true); }}
+          onClose={() => { setShowDetailModal(false); setSelectedMed(null); }}
+          onAddSchedule={() => { setShowDetailModal(false); setShowScheduleForm(true); }}
+          onUpdateStock={() => { setShowDetailModal(false); setShowStockModal(true); }}
         />
       )}
     </View>
