@@ -12,10 +12,9 @@ export default function SettingsPage() {
   const setLocale = useAuthStore((s) => s.setLocale);
   const { logout } = useAuth();
 
-  const toggleLanguage = async () => {
-    const next = i18n.language === 'es' ? 'en' : 'es';
-    await i18n.changeLanguage(next);
-    setLocale(next);
+  const changeLanguage = async (lang: string) => {
+    await i18n.changeLanguage(lang);
+    setLocale(lang);
   };
 
   const handleLogout = async () => {
@@ -75,7 +74,7 @@ export default function SettingsPage() {
         </Card>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push('/(family)/invoices')} activeOpacity={0.7}>
+      <TouchableOpacity onPress={() => router.push('/(family)/subscription')} activeOpacity={0.7}>
         <Card style={styles.settingCard}>
           <View style={[styles.icon, { backgroundColor: '#fef3c7' }]}>
             <Feather name="file-text" size={20} color="#d97706" />
@@ -91,39 +90,29 @@ export default function SettingsPage() {
       {/* Preferencias */}
       <Text style={styles.sectionTitle}>{t('settings.preferences')}</Text>
 
-      <TouchableOpacity onPress={toggleLanguage} activeOpacity={0.7}>
-        <Card style={styles.settingCard}>
-          <View style={[styles.icon, { backgroundColor: colors.primaryLight }]}>
-            <Feather name="globe" size={20} color={colors.primary} />
-          </View>
-          <View style={styles.info}>
-            <Text style={styles.label}>{t('settings.language')}</Text>
-            <Text style={styles.desc}>{i18n.language === 'es' ? 'Español' : 'English'}</Text>
-          </View>
-          <Feather name="chevron-right" size={20} color={colors.textMuted} />
-        </Card>
-      </TouchableOpacity>
-
       <Card style={styles.settingCard}>
-        <View style={[styles.icon, { backgroundColor: '#fef3c7' }]}>
-          <Feather name="bell" size={20} color="#d97706" />
+        <View style={[styles.icon, { backgroundColor: colors.primaryLight }]}>
+          <Feather name="globe" size={20} color={colors.primary} />
         </View>
         <View style={styles.info}>
-          <Text style={styles.label}>{t('settings.notifications')}</Text>
-          <Text style={styles.desc}>{t('settings.notificationsDesc')}</Text>
+          <Text style={styles.label}>{t('settings.language')}</Text>
+          <View style={styles.langOptions}>
+            <TouchableOpacity
+              onPress={() => { void changeLanguage('es'); }}
+              activeOpacity={0.7}
+              style={[styles.langBtn, i18n.language === 'es' && styles.langBtnActive]}
+            >
+              <Text style={[styles.langBtnText, i18n.language === 'es' && styles.langBtnTextActive]}>Español</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => { void changeLanguage('en'); }}
+              activeOpacity={0.7}
+              style={[styles.langBtn, i18n.language === 'en' && styles.langBtnActive]}
+            >
+              <Text style={[styles.langBtnText, i18n.language === 'en' && styles.langBtnTextActive]}>English</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <Feather name="chevron-right" size={20} color={colors.textMuted} />
-      </Card>
-
-      <Card style={styles.settingCard}>
-        <View style={[styles.icon, { backgroundColor: '#ede9fe' }]}>
-          <Feather name="shield" size={20} color="#7c3aed" />
-        </View>
-        <View style={styles.info}>
-          <Text style={styles.label}>{t('settings.privacy')}</Text>
-          <Text style={styles.desc}>{t('settings.privacyDesc')}</Text>
-        </View>
-        <Feather name="chevron-right" size={20} color={colors.textMuted} />
       </Card>
 
       {/* Cerrar sesión */}
@@ -154,4 +143,9 @@ const styles = StyleSheet.create({
   desc: { fontFamily, fontSize: 13, color: colors.textMuted },
   logoutButton: { marginTop: spacing.xl },
   logoutCard: { flexDirection: 'row', alignItems: 'center', padding: spacing.lg, backgroundColor: '#fef2f2', borderColor: colors.errorBorder },
+  langOptions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
+  langBtn: { paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: radius.full, borderWidth: 1, borderColor: colors.borderLight, backgroundColor: colors.surfaceMuted },
+  langBtnActive: { borderColor: colors.primary, backgroundColor: colors.primaryLight },
+  langBtnText: { fontFamily: fontFamilySemiBold, fontSize: 13, color: colors.textMuted },
+  langBtnTextActive: { color: colors.primary },
 });

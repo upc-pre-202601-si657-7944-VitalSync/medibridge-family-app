@@ -32,7 +32,6 @@ const NAV_ITEMS: NavItem[] = [
   { route: '/(family)/messages', icon: 'message-circle', labelKey: 'profiles.sidebar.messages' },
   { route: '/(family)/reports', icon: 'file-text', labelKey: 'profiles.sidebar.reports' },
   { route: '/(family)/subscription', icon: 'credit-card', labelKey: 'profiles.sidebar.subscription' },
-  { route: '/(family)/invoices', icon: 'file', labelKey: 'profiles.sidebar.invoices' },
   { route: '/(family)/settings', icon: 'settings', labelKey: 'profiles.sidebar.settings' },
 ];
 

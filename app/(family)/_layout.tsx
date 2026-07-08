@@ -119,14 +119,6 @@ export default function FamilyLayout() {
           }}
         />
         <Drawer.Screen
-          name="invoices"
-          options={{
-            title: t('profiles.sidebar.invoices'),
-            drawerIcon: ({ color, size }) => <Feather name="file" size={size} color={color} />,
-            drawerItemStyle: { display: 'none' },
-          }}
-        />
-        <Drawer.Screen
           name="settings"
           options={{
             title: t('profiles.sidebar.settings'),
