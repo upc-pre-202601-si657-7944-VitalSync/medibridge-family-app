@@ -6,7 +6,7 @@
       "username": "Username",
       "password": "Password",
       "submit": "Sign In",
-      "submitting": "Signing in …",
+      "submitting": "Signing in &",
       "noAccount": "Don't have an account?",
       "createAccount": "Create one",
       "registeredSuccess": "Account created successfully. Please sign in.",
@@ -20,7 +20,7 @@
       "password": "Password",
       "role": "Role",
       "submit": "Sign Up",
-      "submitting": "Creating account …",
+      "submitting": "Creating account &",
       "hasAccount": "Already have an account?",
       "signIn": "Sign in",
       "roleHint": "Select the account type you want to use to access the platform.",
@@ -132,7 +132,9 @@
     "quickAccess": "Quick access",
     "nextAppointment": "Next appointment",
     "noUpcomingAppointments": "No upcoming appointments scheduled",
-    "viewAll": "View all"
+    "viewAll": "View all",
+    "noLinkedPatient": "Link your family member first to see real appointments, medication, and alerts.",
+    "linkPatient": "Link patient"
   },
   "appointments": {
     "title": "Appointments",
@@ -202,7 +204,11 @@
     "selectMedication": "Select a medication to view its history.",
     "dosage": "Dosage",
     "route": "Route",
-    "stock": "Stock",
+    "stock": {
+      "title": "Update stock",
+      "current": "Current stock",
+      "new": "New stock"
+    },
     "lowStock": "Low stock",
     "expires": "Expires",
     "form": {
@@ -213,7 +219,8 @@
       "route": "Administration route",
       "stock": "Current stock",
       "threshold": "Low stock threshold",
-      "expiration": "Expiration date"
+      "expiration": "Expiration date",
+      "shortAction": "Medication"
     },
     "unit": {
       "MG": "mg",
@@ -274,11 +281,6 @@
       "reason": "Reason",
       "reasonPlaceholder": "Explain why the dose was skipped",
       "confirm": "Confirm skip"
-    },
-    "stock": {
-      "title": "Update stock",
-      "current": "Current stock",
-      "new": "New stock"
     }
   },
   "monitoring": {
@@ -295,7 +297,7 @@
     "emotionalState": "Emotional state",
     "notes": "Clinical notes",
     "mmHg": "mmHg",
-    "celsius": "°C",
+    "celsius": "?C",
     "outOf10": "/10",
     "summary": {
       "title": "Health summary",
@@ -325,15 +327,16 @@
       "notes": "Notes",
       "clinicalNotes": "Clinical notes",
       "clinicalNotesPlaceholder": "Relevant observations for the family",
-      "save": "Save observation"
+      "save": "Save observation",
+      "shortAction": "Observation"
     },
     "emotional": {
       "CALM": "Calm",
       "ANXIOUS": "Anxious",
-      "STABLE": "Stable",
       "SAD": "Sad",
-      "AGITATED": "Agitated",
-      "HAPPY": "Happy"
+      "IRRITABLE": "Irritable",
+      "CONFUSED": "Confused",
+      "APATHETIC": "Apathetic"
     }
   },
   "messages": {
@@ -423,10 +426,10 @@
     "subscriptionStatus": "Subscription Status",
     "subscriptionStatusDesc": "View plan and details",
     "invoices": "Invoice History",
-    "invoicesDesc": "View invoices and payments",
+    "invoicesDesc": "View registered invoices and payments",
     "preferences": "Preferences",
     "language": "Language",
-    "languageDesc": "Español / English",
+    "languageDesc": "Espa?ol / English",
     "notifications": "Notifications",
     "notificationsDesc": "Manage preferences",
     "privacy": "Privacy",

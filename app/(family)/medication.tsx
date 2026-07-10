@@ -6,9 +6,9 @@ import axios from 'axios';
 import { Card, Badge, LoadingSpinner, EmptyState, TabBar, MedicationFormModal, DoseFormModal, SkipDoseModal, UpdateStockModal, ScheduleFormModal } from '../../src/shared/components';
 import { medicationApi } from '../../src/core/api/services';
 import { profilesStore } from '../../src/core/storage/profiles-store';
-import { useMedications, useMedicationSchedules, useLowStockAlerts, useDoseHistory } from '../../src/features/medication/application/use-medication';
+import { useMedications, useMedicationSchedules, useDoseHistory } from '../../src/features/medication/application/use-medication';
 import { usePullToRefresh } from '../../src/shared/hooks/use-pull-to-refresh';
-import { Medication, MedicationSchedule, DoseAdministration, LowStockAlert } from '../../src/features/medication/domain/models';
+import { Medication, MedicationSchedule } from '../../src/features/medication/domain/models';
 import { colors, spacing, radius, fontFamily, fontFamilySemiBold, fontFamilyBold } from '../../src/shared/theme';
 
 type TabKey = 'inventory' | 'schedules' | 'history';
@@ -27,14 +27,13 @@ export default function MedicationPage() {
 
   const { medications, loading, refetch } = useMedications();
   const { schedules, loading: loadingSchedules, refetch: refetchSchedules } = useMedicationSchedules();
-  const { alerts } = useLowStockAlerts();
   const { refreshing, onRefresh } = usePullToRefresh(async () => {
     await refetch();
     await refetchSchedules();
   });
 
   const tabs = [
-    { key: 'inventory' as TabKey, label: t('medication.tabs.inventory'), badge: alerts.length },
+    { key: 'inventory' as TabKey, label: t('medication.tabs.inventory') },
     { key: 'schedules' as TabKey, label: t('medication.tabs.schedules') },
     { key: 'history' as TabKey, label: t('medication.tabs.history') },
   ];
@@ -72,8 +71,15 @@ export default function MedicationPage() {
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={styles.title}>{t('medication.title')}</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => setShowMedForm(true)} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => setShowMedForm(true)}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={t('medication.form.title')}
+        >
           <Feather name="plus" size={20} color="#fff" />
+          <Text style={styles.addButtonText}>{t('medication.form.shortAction')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -82,13 +88,13 @@ export default function MedicationPage() {
       {activeTab === 'inventory' && (
         <InventoryTab
           medications={medications}
-          alerts={alerts}
           refreshing={refreshing}
           onRefresh={onRefresh}
           onMedPress={(med) => { setSelectedMed(med); setShowDetailModal(true); }}
           onAddSchedule={(med) => { setSelectedMed(med); setShowScheduleForm(true); }}
           onUpdateStock={(med) => { setSelectedMed(med); setShowStockModal(true); }}
           emptyMessage={t('medication.empty')}
+          onAddMedication={() => setShowMedForm(true)}
         />
       )}
       {activeTab === 'schedules' && (
@@ -158,16 +164,17 @@ export default function MedicationPage() {
   );
 }
 
-function InventoryTab({ medications, alerts, refreshing, onRefresh, onMedPress, onAddSchedule, onUpdateStock, emptyMessage }: {
-  medications: Medication[]; alerts: LowStockAlert[]; refreshing: boolean; onRefresh: () => void;
+function InventoryTab({ medications, refreshing, onRefresh, onMedPress, onAddSchedule, onUpdateStock, emptyMessage, onAddMedication }: {
+  medications: Medication[]; refreshing: boolean; onRefresh: () => void;
   onMedPress: (med: Medication) => void; onAddSchedule: (med: Medication) => void; onUpdateStock: (med: Medication) => void; emptyMessage: string;
+  onAddMedication: () => void;
 }) {
   const { t } = useTranslation();
 
   if (medications.length === 0) {
     return (
       <View style={tabStyles.container}>
-        <EmptyState icon="box" message={emptyMessage} />
+        <EmptyState icon="box" message={emptyMessage} actionLabel={t('medication.form.title')} onAction={onAddMedication} />
       </View>
     );
   }
@@ -175,18 +182,6 @@ function InventoryTab({ medications, alerts, refreshing, onRefresh, onMedPress, 
   return (
     <ScrollView style={tabStyles.container} contentContainerStyle={tabStyles.content}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} colors={[colors.primary]} />}>
-      {alerts.length > 0 && (
-        <View style={tabStyles.alertSection}>
-          <Text style={tabStyles.alertTitle}>{t('medication.lowStockAlerts')}</Text>
-          {alerts.map((alert) => (
-            <View key={alert.medicationId} style={tabStyles.alertRow}>
-              <Feather name="alert-triangle" size={16} color={colors.error} />
-              <Text style={tabStyles.alertText}>{alert.medicationName}: {alert.currentStock} restantes</Text>
-            </View>
-          ))}
-        </View>
-      )}
-
       {medications.map((m) => {
         const low = m.stockQuantity <= m.lowStockThreshold;
         return (
@@ -285,6 +280,10 @@ function HistoryTab({ medications }: { medications: Medication[] }) {
   const { t } = useTranslation();
   const [selectedMedId, setSelectedMedId] = useState<number | null>(null);
   const { doses, loading } = useDoseHistory(selectedMedId);
+
+  useEffect(() => {
+    if (!selectedMedId && medications.length > 0) setSelectedMedId(medications[0].id);
+  }, [medications, selectedMedId]);
 
   if (medications.length === 0) {
     return (
@@ -417,10 +416,6 @@ import { Button } from '../../src/shared/components';
 const tabStyles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: spacing.lg },
-  alertSection: { backgroundColor: '#fef2f2', padding: spacing.md, borderRadius: radius.lg, marginBottom: spacing.lg },
-  alertTitle: { fontFamily: fontFamilyBold, fontSize: 14, color: colors.error, marginBottom: spacing.sm },
-  alertRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xs },
-  alertText: { fontFamily, fontSize: 13, color: colors.error },
   medCard: { marginBottom: spacing.md },
   lowCard: { borderLeftWidth: 4, borderLeftColor: colors.error },
   medHeader: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.md },
@@ -492,7 +487,9 @@ const styles = StyleSheet.create({
   },
   title: { fontFamily: fontFamilyBold, fontSize: 24, color: colors.textPrimary, letterSpacing: -0.5 },
   addButton: {
-    width: 40, height: 40, borderRadius: radius.full, backgroundColor: colors.primary,
-    alignItems: 'center', justifyContent: 'center',
+    minHeight: 40, borderRadius: radius.full, backgroundColor: colors.primary,
+    alignItems: 'center', justifyContent: 'center', flexDirection: 'row',
+    gap: spacing.xs, paddingHorizontal: spacing.md,
   },
+  addButtonText: { fontFamily: fontFamilySemiBold, fontSize: 13, color: '#fff' },
 });

@@ -141,6 +141,9 @@ function NotificationsTab({ notifications, refreshing, onRefresh, emptyMessage }
                 minute: '2-digit',
               })}
             </Text>
+            {item.status === 'UNREAD' ? (
+              <Text style={tabStyles.markReadHint}>{t('messages.markRead')}</Text>
+            ) : null}
           </View>
         </TouchableOpacity>
       )}
@@ -324,6 +327,12 @@ const tabStyles = StyleSheet.create({
     fontFamily,
     fontSize: 12,
     color: colors.textMuted,
+  },
+  markReadHint: {
+    fontFamily: fontFamilySemiBold,
+    fontSize: 12,
+    color: colors.primary,
+    marginTop: spacing.xs,
   },
   conversationCard: {
     flexDirection: 'row',

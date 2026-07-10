@@ -97,6 +97,14 @@ export default function SubscriptionPage() {
     await Linking.openURL(checkoutUrl);
   };
 
+  const getCheckoutReturnUrl = () => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      return window.location.origin;
+    }
+
+    return undefined;
+  };
+
   const handlePlanSelection = async (plan: typeof demoPlans[number]) => {
     if (!currentUser?.id) return;
 
@@ -124,6 +132,7 @@ export default function SubscriptionPage() {
         commercialLine: 'FAMILY',
         planType: plan.planType,
         billingCycle: plan.billingCycle,
+        returnUrl: getCheckoutReturnUrl(),
       };
       const { data } = await paymentsApi.post<CheckoutSessionResponse>('/subscriptions/checkout', payload);
       await openCheckoutUrl(data.checkoutUrl);

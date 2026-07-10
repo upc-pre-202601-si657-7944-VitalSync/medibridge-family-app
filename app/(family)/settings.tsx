@@ -87,7 +87,7 @@ export default function SettingsPage() {
         </Card>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push('/(family)/subscription')} activeOpacity={0.7}>
+      <TouchableOpacity onPress={() => router.push('/(family)/invoices')} activeOpacity={0.7}>
         <Card style={styles.settingCard}>
           <View style={[styles.icon, { backgroundColor: '#fef3c7' }]}>
             <Feather name="file-text" size={20} color="#d97706" />

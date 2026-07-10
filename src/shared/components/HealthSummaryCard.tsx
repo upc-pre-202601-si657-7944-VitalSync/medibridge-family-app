@@ -10,6 +10,7 @@ import { colors, spacing, radius, fontFamily, fontFamilySemiBold, fontFamilyBold
 export function HealthSummaryCard() {
   const { summary, loading } = useHealthSummary();
   const isPremium = useSubscriptionStore((s) => s.isPremium);
+  const hasObservations = (summary?.observationsCount ?? 0) > 0;
 
   if (loading) return null;
 
@@ -25,18 +26,28 @@ export function HealthSummaryCard() {
           <Feather name="chevron-right" size={18} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
-      {summary ? (
+      {summary && hasObservations ? (
         <View style={styles.grid}>
-          <VitalBox label="Presion" value={summary.latestBloodPressure} unit="mmHg" color="#2563eb" />
-          <VitalBox label="Temp. Promedio" value={String(summary.averageTemperature)} unit="°C" color="#db2777" />
-          <VitalBox label="Dolor" value={summary.painTrend === 'DESCENDING' ? 'Bajando' : summary.painTrend === 'STABLE' ? 'Estable' : 'Subiendo'} color="#d97706" />
-          <VitalBox label="Alertas" value={String(summary.activeAlerts)} color={summary.activeAlerts > 0 ? colors.error : '#059669'} />
+          <VitalBox label="Presion" value={summary.latestBloodPressure ?? 'Sin datos'} unit="mmHg" color="#2563eb" />
+          <VitalBox label="Temp. Promedio" value={formatTemperature(summary.averageTemperature)} unit="°C" color="#db2777" />
+          <VitalBox label="Dolor" value={formatTrend(summary.painTrend)} color="#d97706" />
+          <VitalBox label="Alertas" value={String(summary.activeAlerts ?? 0)} color={(summary.activeAlerts ?? 0) > 0 ? colors.error : '#059669'} />
         </View>
       ) : (
         <Text style={styles.empty}>Sin datos de salud registrados</Text>
       )}
     </Card>
   );
+}
+
+function formatTemperature(value: number | null) {
+  return value == null ? 'Sin datos' : value.toFixed(1);
+}
+
+function formatTrend(value: 'ASCENDING' | 'DESCENDING' | 'STABLE') {
+  if (value === 'DESCENDING') return 'Bajando';
+  if (value === 'STABLE') return 'Estable';
+  return 'Subiendo';
 }
 
 function VitalBox({ label, value, unit, color }: { label: string; value: string; unit?: string; color: string }) {

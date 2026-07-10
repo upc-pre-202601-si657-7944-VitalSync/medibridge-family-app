@@ -59,6 +59,7 @@ export interface CreateCheckoutSessionPayload {
   readonly commercialLine: CommercialLine;
   readonly planType: SubscriptionPlanType;
   readonly billingCycle: BillingCycle;
+  readonly returnUrl?: string;
 }
 
 export interface CheckoutSessionResponse {

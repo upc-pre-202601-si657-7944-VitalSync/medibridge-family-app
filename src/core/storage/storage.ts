@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
 const memoryStorage = new Map<string, string>();
 
@@ -12,6 +13,17 @@ type AppStorageDriver = {
 let mmkv: AppStorageDriver | null = null;
 
 const isExpoGo = Constants.appOwnership === 'expo';
+const isWeb = Platform.OS === 'web';
+
+function getWebStorage(): Storage | null {
+  if (!isWeb || typeof window === 'undefined') return null;
+
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
 
 if (!isExpoGo) {
   try {
@@ -28,6 +40,9 @@ if (!isExpoGo) {
 
 export const secureStorage = {
   async get(key: string): Promise<string | null> {
+    const webStorage = getWebStorage();
+    if (webStorage) return webStorage.getItem(key);
+
     try {
       return await SecureStore.getItemAsync(key);
     } catch {
@@ -35,6 +50,12 @@ export const secureStorage = {
     }
   },
   async set(key: string, value: string): Promise<boolean> {
+    const webStorage = getWebStorage();
+    if (webStorage) {
+      webStorage.setItem(key, value);
+      return true;
+    }
+
     try {
       await SecureStore.setItemAsync(key, value);
       return true;
@@ -44,6 +65,12 @@ export const secureStorage = {
     }
   },
   async remove(key: string): Promise<boolean> {
+    const webStorage = getWebStorage();
+    if (webStorage) {
+      webStorage.removeItem(key);
+      return true;
+    }
+
     try {
       await SecureStore.deleteItemAsync(key);
       return true;
@@ -56,6 +83,12 @@ export const secureStorage = {
 
 export const appStorage = {
   get(key: string): string | undefined {
+    const webStorage = getWebStorage();
+    if (webStorage) {
+      const persisted = webStorage.getItem(key);
+      return persisted ?? memoryStorage.get(key);
+    }
+
     if (mmkv) {
       try {
         return mmkv.getString(key);
@@ -73,6 +106,13 @@ export const appStorage = {
     return memoryStorage.get(key);
   },
   set(key: string, value: string): void {
+    const webStorage = getWebStorage();
+    if (webStorage) {
+      memoryStorage.set(key, value);
+      webStorage.setItem(key, value);
+      return;
+    }
+
     if (mmkv) {
       try {
         mmkv.set(key, value);
@@ -86,6 +126,13 @@ export const appStorage = {
     SecureStore.setItem(key, value);
   },
   remove(key: string): void {
+    const webStorage = getWebStorage();
+    if (webStorage) {
+      memoryStorage.delete(key);
+      webStorage.removeItem(key);
+      return;
+    }
+
     if (mmkv) {
       try {
         mmkv.remove(key);

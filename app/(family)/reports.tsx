@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert, RefreshControl, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
 import { Button, Card, Badge, LoadingSpinner, EmptyState, Select, PremiumGate, TabBar } from '../../src/shared/components';
@@ -11,6 +11,7 @@ import { ClinicalReport, ReportType } from '../../src/features/reports/domain/mo
 import { colors, spacing, radius, fontFamily, fontFamilySemiBold, fontFamilyBold } from '../../src/shared/theme';
 
 type TabKey = 'reports' | 'analytics';
+const PDF_MIME_TYPE = 'application/pdf';
 
 export default function ReportsPage() {
   const { t } = useTranslation();
@@ -125,7 +126,7 @@ function ReportsTab({ onReportPress }: { onReportPress: (report: ClinicalReport)
                 <Text style={tabStyles.reportPeriod}>
                   {t('reports.period')}: {new Date(r.periodStartDate).toLocaleDateString()} — {new Date(r.periodEndDate).toLocaleDateString()}
                 </Text>
-                <Text style={tabStyles.reportSummary} numberOfLines={2}>{r.summary}</Text>
+                <Text style={tabStyles.reportSummary} numberOfLines={2}>{translateReportText(r.summary)}</Text>
               </Card>
             </TouchableOpacity>
           ))
@@ -203,12 +204,16 @@ function ReportDetailModal({ visible, report, onClose }: { visible: boolean; rep
 
   const handleDownloadPdf = async () => {
     try {
-      const response = await reportsApi.get(`/clinical-reports/${report.id}/pdf`, {
+      const response = await reportsApi.post(`/clinical-reports/${report.id}/pdf`, undefined, {
+        headers: { Accept: PDF_MIME_TYPE },
         responseType: 'blob',
       });
-      
-      const url = URL.createObjectURL(new Blob([response.data]));
-      Linking.openURL(url);
+
+      const pdfBlob = isPdfResponse(response.data, response.headers)
+        ? toPdfBlob(response.data)
+        : await fetchGeneratedPdf(report.id);
+
+      downloadPdfBlob(pdfBlob, `reporte-clinico-${report.id}.pdf`);
     } catch (error) {
       Alert.alert(t('common.error'), t('reports.downloadError'));
     }
@@ -253,7 +258,7 @@ function ReportDetailModal({ visible, report, onClose }: { visible: boolean; rep
 
               <Card style={modalStyles.summaryCard}>
                 <Text style={modalStyles.summaryTitle}>{t('reports.detail.summary')}</Text>
-                <Text style={modalStyles.summaryText}>{report.summary}</Text>
+                <Text style={modalStyles.summaryText}>{translateReportText(report.summary)}</Text>
               </Card>
 
               <Button
@@ -268,6 +273,78 @@ function ReportDetailModal({ visible, report, onClose }: { visible: boolean; rep
       )}
     </PremiumGate>
   );
+}
+
+async function fetchGeneratedPdf(reportId: number): Promise<Blob> {
+  const response = await reportsApi.get(`/clinical-reports/${reportId}/pdf`, {
+    headers: { Accept: PDF_MIME_TYPE },
+    responseType: 'blob',
+  });
+
+  if (!isPdfResponse(response.data, response.headers)) {
+    throw new Error('The reports service did not return a PDF file.');
+  }
+
+  return toPdfBlob(response.data);
+}
+
+function isPdfResponse(data: unknown, headers: Record<string, any>): boolean {
+  const contentType = String(headers?.['content-type'] ?? headers?.['Content-Type'] ?? '').toLowerCase();
+  return contentType.includes(PDF_MIME_TYPE) || (data instanceof Blob && data.type === PDF_MIME_TYPE);
+}
+
+function toPdfBlob(data: unknown): Blob {
+  return data instanceof Blob
+    ? new Blob([data], { type: PDF_MIME_TYPE })
+    : new Blob([data as BlobPart], { type: PDF_MIME_TYPE });
+}
+
+function downloadPdfBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+
+  if (Platform.OS === 'web') {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    return;
+  }
+
+  Linking.openURL(url);
+}
+
+function translateReportText(text: string): string {
+  if (!text) return text;
+
+  let translated = text;
+  if (translated.startsWith('Clinical report generated for ')) {
+    translated = translated
+      .replace('Clinical report generated for ', 'Reporte clinico de ')
+      .replace(' from ', ', correspondiente al periodo del ')
+      .replace(' to ', ' al ');
+  }
+
+  return translated
+    .replace('Patient: ', 'Paciente: ')
+    .replace('. Report type: ', '. Tipo de reporte: ')
+    .replace('. Evaluation period: ', '. Periodo evaluado: ')
+    .replace('VITAL_SIGNS', 'Signos vitales')
+    .replace('MEDICATION', 'Medicacion')
+    .replace('FULL_CLINICAL', 'Clinico completo')
+    .replace('No health monitoring observations registered for this patient in the report period.',
+      'No hay registros de monitoreo para este paciente en el periodo del reporte.')
+    .replace('No active medications registered for this patient.',
+      'No hay medicacion activa registrada para este paciente.')
+    .replace('Medication summary: ', 'Medicacion: ')
+    .replace(' active medications, ', ' medicamento(s) activo(s), ')
+    .replace(' low-stock medications, ', ' con stock bajo, ')
+    .replace(' dose administrations recorded in the report period.',
+      ' dosis administrada(s) registradas en el periodo.')
+    .replace('No appointments registered for this patient in the report period.',
+      'No hay citas medicas registradas para este paciente en el periodo del reporte.');
 }
 
 const tabStyles = StyleSheet.create({

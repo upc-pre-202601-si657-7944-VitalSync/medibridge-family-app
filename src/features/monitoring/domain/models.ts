@@ -1,10 +1,10 @@
 export type EmotionalState = 
   | 'CALM' 
   | 'ANXIOUS' 
-  | 'STABLE' 
   | 'SAD' 
-  | 'AGITATED' 
-  | 'HAPPY';
+  | 'IRRITABLE' 
+  | 'CONFUSED' 
+  | 'APATHETIC';
 
 export interface HealthObservation {
   readonly id: number;
@@ -34,13 +34,13 @@ export interface ClinicalAlert {
 
 export interface HealthSummary {
   readonly patientId: number;
-  readonly latestBloodPressure: string;
-  readonly averageTemperature: number;
+  readonly latestBloodPressure: string | null;
+  readonly averageTemperature: number | null;
   readonly painTrend: 'ASCENDING' | 'DESCENDING' | 'STABLE';
   readonly emotionalTrend: 'ASCENDING' | 'DESCENDING' | 'STABLE';
   readonly activeAlerts: number;
   readonly observationsCount: number;
-  readonly lastObservation: string;
+  readonly lastObservation: string | null;
 }
 
 export interface RecordObservationPayload {

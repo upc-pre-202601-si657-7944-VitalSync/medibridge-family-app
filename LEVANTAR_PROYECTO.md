@@ -111,6 +111,12 @@ Web:
 npm run web
 ```
 
+Web en el puerto usado por Stripe local:
+
+```bash
+npm run web:stripe
+```
+
 Al abrir `http://localhost:<puerto>` la ruta raiz redirige automaticamente a login, setup o dashboard segun el estado de sesion.
 
 Si el puerto `8081` esta ocupado, usa otro puerto:
@@ -199,13 +205,24 @@ npm run start:clear
 
 Los planes pagos no se activan al hacer click. La app crea una sesion de Stripe Checkout, abre la pasarela y solo activa la suscripcion cuando Stripe vuelve con `checkout=success` y `session_id`.
 
-Para que Stripe vuelva a esta app web local, `payments-service` debe tener:
+Para que Stripe vuelva a esta app web local, manten Expo Web abierto. Si el navegador muestra `ERR_CONNECTION_REFUSED`
+en `localhost:8090`, no es que Stripe fallo: significa que no hay ningun servidor Expo escuchando en ese puerto.
+
+La forma mas simple para probar Stripe local es:
+
+```bash
+npm run web:stripe
+```
+
+Historicamente `payments-service` usaba:
 
 ```bash
 FRONTEND_APP_URL=http://localhost:8090
 ```
 
-En el `docker-compose.yml` local ya quedo configurado el default `http://localhost:8090` para `payments-service`. Si levantas Expo en otro puerto, cambia `FRONTEND_APP_URL` en el backend y recrea Payments:
+Ahora la app envia el origen actual del navegador al crear Checkout, por ejemplo `http://localhost:8091`, y Payments lo usa como URL de retorno. `FRONTEND_APP_URL` queda como fallback si la app no envia origen.
+
+Si cambias variables del backend, recrea Payments:
 
 ```powershell
 cd C:\Users\Sebas\IdeaProjects\medibridge\medibridge.microservices\docker
@@ -217,6 +234,8 @@ Stripe debe volver a:
 ```text
 http://localhost:8090/subscriptions?checkout=success&session_id=...
 ```
+
+Despues de pagar, si vuelves a login tras un F5, revisa que estes usando la version actual: en web la sesion se persiste en `localStorage`.
 
 La ruta `/subscriptions` existe en esta app solo para recibir el retorno de Stripe y confirmar el pago. Si al volver desde Stripe la app te pide login, no pierdas el flujo: la app guarda el `session_id` pendiente, y despues de iniciar sesion vuelve a Suscripcion para confirmar el pago con backend.
 

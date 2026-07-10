@@ -72,7 +72,7 @@ export function useHealthSummary() {
     setError(null);
     try {
       const { data } = await healthApi.get(`/health-monitoring/patients/${patientId}/summary`);
-      setSummary(data);
+      setSummary(normalizeHealthSummary(data, patientId));
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError(err.response?.data?.message || err.message);
@@ -86,6 +86,43 @@ export function useHealthSummary() {
   useEffect(() => { fetch(); }, [fetch]);
 
   return { summary, loading, error, refetch: fetch };
+}
+
+function normalizeHealthSummary(data: unknown, patientId: number): HealthSummary | null {
+  if (!data || typeof data !== 'object') return null;
+
+  const payload = data as Partial<HealthSummary>;
+
+  return {
+    patientId: toNumber(payload.patientId, patientId),
+    latestBloodPressure: typeof payload.latestBloodPressure === 'string' && payload.latestBloodPressure.trim()
+      ? payload.latestBloodPressure
+      : null,
+    averageTemperature: toNullableNumber(payload.averageTemperature),
+    painTrend: normalizeTrend(payload.painTrend),
+    emotionalTrend: normalizeTrend(payload.emotionalTrend),
+    activeAlerts: toNumber(payload.activeAlerts, 0),
+    observationsCount: toNumber(payload.observationsCount, 0),
+    lastObservation: typeof payload.lastObservation === 'string' && payload.lastObservation.trim()
+      ? payload.lastObservation
+      : null,
+  };
+}
+
+function normalizeTrend(value: unknown): HealthSummary['painTrend'] {
+  return value === 'ASCENDING' || value === 'DESCENDING' || value === 'STABLE'
+    ? value
+    : 'STABLE';
+}
+
+function toNumber(value: unknown, fallback: number): number {
+  const numeric = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+function toNullableNumber(value: unknown): number | null {
+  const numeric = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(numeric) ? numeric : null;
 }
 
 export function useRecordObservation() {

@@ -50,8 +50,15 @@ export default function AppointmentsPage() {
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={styles.title}>{t('appointments.title')}</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => setShowForm(true)} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => setShowForm(true)}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={t('appointments.schedule')}
+        >
           <Feather name="plus" size={20} color="#fff" />
+          <Text style={styles.addButtonText}>{t('appointments.submit')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -93,6 +100,7 @@ export default function AppointmentsPage() {
         onRefresh={onRefresh}
         onAppointmentPress={(apt) => setSelectedAppointment(apt)}
         emptyMessage={getEmptyMessage()}
+        onAddPress={() => setShowForm(true)}
       />
 
       <ScheduleAppointmentModal
@@ -112,16 +120,16 @@ export default function AppointmentsPage() {
   );
 }
 
-function AppointmentsList({ appointments, refreshing, onRefresh, onAppointmentPress, emptyMessage }: {
+function AppointmentsList({ appointments, refreshing, onRefresh, onAppointmentPress, emptyMessage, onAddPress }: {
   appointments: Appointment[]; refreshing: boolean; onRefresh: () => void;
-  onAppointmentPress: (apt: Appointment) => void; emptyMessage: string;
+  onAppointmentPress: (apt: Appointment) => void; emptyMessage: string; onAddPress: () => void;
 }) {
   const { t } = useTranslation();
 
   if (appointments.length === 0) {
     return (
       <View style={listStyles.container}>
-        <EmptyState icon="calendar" message={emptyMessage} />
+        <EmptyState icon="calendar" message={emptyMessage} actionLabel={t('appointments.schedule')} onAction={onAddPress} />
       </View>
     );
   }
@@ -413,9 +421,11 @@ const styles = StyleSheet.create({
   },
   title: { fontFamily: fontFamilyBold, fontSize: 24, color: colors.textPrimary, letterSpacing: -0.5 },
   addButton: {
-    width: 40, height: 40, borderRadius: radius.full, backgroundColor: colors.primary,
-    alignItems: 'center', justifyContent: 'center',
+    minHeight: 40, borderRadius: radius.full, backgroundColor: colors.primary,
+    alignItems: 'center', justifyContent: 'center', flexDirection: 'row',
+    gap: spacing.xs, paddingHorizontal: spacing.md,
   },
+  addButtonText: { fontFamily: fontFamilySemiBold, fontSize: 13, color: '#fff' },
   upcomingSection: { padding: spacing.lg, paddingBottom: 0 },
   upcomingTitle: { fontFamily: fontFamilyBold, fontSize: 16, color: colors.textPrimary, marginBottom: spacing.md },
   nextCard: { marginBottom: spacing.lg },

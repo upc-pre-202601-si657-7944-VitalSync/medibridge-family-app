@@ -53,7 +53,7 @@ export default function FamilyLayout() {
         />
         <Drawer.Screen
           name="patient/[id]"
-          options={{ drawerItemStyle: { display: 'none' }, title: 'Patient Detail' }}
+          options={{ drawerItemStyle: { display: 'none' }, title: t('profiles.sidebar.patient') }}
         />
         <Drawer.Screen
           name="doctor/index"
@@ -64,7 +64,7 @@ export default function FamilyLayout() {
         />
         <Drawer.Screen
           name="doctor/[id]"
-          options={{ drawerItemStyle: { display: 'none' }, title: 'Doctor Detail' }}
+          options={{ drawerItemStyle: { display: 'none' }, title: t('profiles.sidebar.doctor') }}
         />
         <Drawer.Screen
           name="care-team"

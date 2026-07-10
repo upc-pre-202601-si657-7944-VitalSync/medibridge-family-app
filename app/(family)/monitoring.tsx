@@ -8,7 +8,7 @@ import { healthApi } from '../../src/core/api/services';
 import { profilesStore } from '../../src/core/storage/profiles-store';
 import { useHealthSummary, useClinicalAlerts, useRecordObservation } from '../../src/features/monitoring/application/use-monitoring';
 import { usePullToRefresh } from '../../src/shared/hooks/use-pull-to-refresh';
-import { EmotionalState } from '../../src/features/monitoring/domain/models';
+import { EmotionalState, HealthSummary } from '../../src/features/monitoring/domain/models';
 import { colors, spacing, radius, fontFamily, fontFamilySemiBold, fontFamilyBold } from '../../src/shared/theme';
 
 interface Observation { id: number; recordedAt: string; systolicBloodPressure: number; diastolicBloodPressure: number; bodyTemperature: number; painLevel: number; emotionalState: string; clinicalNotes: string }
@@ -57,8 +57,15 @@ export default function MonitoringPage() {
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={styles.title}>{t('monitoring.title')}</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => setShowForm(true)} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => setShowForm(true)}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={t('monitoring.form.title')}
+        >
           <Feather name="plus" size={20} color="#fff" />
+          <Text style={styles.addButtonText}>{t('monitoring.form.shortAction')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -70,6 +77,7 @@ export default function MonitoringPage() {
           refreshing={refreshObs}
           onRefresh={onRefreshObs}
           emptyMessage={t('monitoring.empty')}
+          onAddPress={() => setShowForm(true)}
         />
       )}
       {activeTab === 'summary' && <SummaryTab />}
@@ -84,15 +92,15 @@ export default function MonitoringPage() {
   );
 }
 
-function ObservationsTab({ observations, refreshing, onRefresh, emptyMessage }: {
-  observations: Observation[]; refreshing: boolean; onRefresh: () => void; emptyMessage: string;
+function ObservationsTab({ observations, refreshing, onRefresh, emptyMessage, onAddPress }: {
+  observations: Observation[]; refreshing: boolean; onRefresh: () => void; emptyMessage: string; onAddPress: () => void;
 }) {
   const { t, i18n } = useTranslation();
 
   if (observations.length === 0) {
     return (
       <View style={tabStyles.container}>
-        <EmptyState icon="heart" message={emptyMessage} />
+        <EmptyState icon="heart" message={emptyMessage} actionLabel={t('monitoring.form.title')} onAction={onAddPress} />
       </View>
     );
   }
@@ -124,6 +132,7 @@ function ObservationsTab({ observations, refreshing, onRefresh, emptyMessage }: 
 function SummaryTab() {
   const { t } = useTranslation();
   const { summary, loading } = useHealthSummary();
+  const hasObservations = (summary?.observationsCount ?? 0) > 0;
 
   if (loading) return <LoadingSpinner />;
 
@@ -132,12 +141,12 @@ function SummaryTab() {
       <ScrollView style={tabStyles.container} contentContainerStyle={tabStyles.content}>
         <Card style={tabStyles.summaryCard}>
           <Text style={tabStyles.summaryTitle}>{t('monitoring.summary.title')}</Text>
-          {summary ? (
+          {summary && hasObservations ? (
             <View style={tabStyles.summaryGrid}>
-              <SummaryItem label={t('monitoring.summary.latestBP')} value={summary.latestBloodPressure} icon="heart" color="#2563eb" />
-              <SummaryItem label={t('monitoring.summary.avgTemp')} value={`${summary.averageTemperature}°C`} icon="thermometer" color="#db2777" />
-              <SummaryItem label={t('monitoring.summary.painTrend')} value={summary.painTrend === 'DESCENDING' ? t('monitoring.summary.trendDown') : summary.painTrend === 'STABLE' ? t('monitoring.summary.trendStable') : t('monitoring.summary.trendUp')} icon="trending-up" color="#d97706" />
-              <SummaryItem label={t('monitoring.summary.emotionalTrend')} value={summary.emotionalTrend === 'DESCENDING' ? t('monitoring.summary.trendDown') : summary.emotionalTrend === 'STABLE' ? t('monitoring.summary.trendStable') : t('monitoring.summary.trendUp')} icon="smile" color="#7c3aed" />
+              <SummaryItem label={t('monitoring.summary.latestBP')} value={summary.latestBloodPressure ?? '---'} icon="heart" color="#2563eb" />
+              <SummaryItem label={t('monitoring.summary.avgTemp')} value={formatSummaryTemperature(summary.averageTemperature)} icon="thermometer" color="#db2777" />
+              <SummaryItem label={t('monitoring.summary.painTrend')} value={formatSummaryTrend(summary.painTrend, t)} icon="trending-up" color="#d97706" />
+              <SummaryItem label={t('monitoring.summary.emotionalTrend')} value={formatSummaryTrend(summary.emotionalTrend, t)} icon="smile" color="#7c3aed" />
               <SummaryItem label={t('monitoring.summary.activeAlerts')} value={String(summary.activeAlerts)} icon="alert-circle" color={summary.activeAlerts > 0 ? colors.error : '#059669'} />
               <SummaryItem label={t('monitoring.summary.totalObs')} value={String(summary.observationsCount)} icon="clipboard" color="#0d9488" />
             </View>
@@ -148,6 +157,16 @@ function SummaryTab() {
       </ScrollView>
     </PremiumGate>
   );
+}
+
+function formatSummaryTemperature(value: number | null) {
+  return value == null ? '---' : `${value.toFixed(1)}°C`;
+}
+
+function formatSummaryTrend(value: HealthSummary['painTrend'], t: (key: string) => string) {
+  if (value === 'DESCENDING') return t('monitoring.summary.trendDown');
+  if (value === 'STABLE') return t('monitoring.summary.trendStable');
+  return t('monitoring.summary.trendUp');
 }
 
 function AlertsTab() {
@@ -197,10 +216,10 @@ function ObservationFormModal({ visible, onClose, onSaved }: { visible: boolean;
   const emotionalStateOptions = [
     { value: 'CALM', label: t('monitoring.emotional.CALM') },
     { value: 'ANXIOUS', label: t('monitoring.emotional.ANXIOUS') },
-    { value: 'STABLE', label: t('monitoring.emotional.STABLE') },
     { value: 'SAD', label: t('monitoring.emotional.SAD') },
-    { value: 'AGITATED', label: t('monitoring.emotional.AGITATED') },
-    { value: 'HAPPY', label: t('monitoring.emotional.HAPPY') },
+    { value: 'IRRITABLE', label: t('monitoring.emotional.IRRITABLE') },
+    { value: 'CONFUSED', label: t('monitoring.emotional.CONFUSED') },
+    { value: 'APATHETIC', label: t('monitoring.emotional.APATHETIC') },
   ];
 
   const handleSave = async () => {
@@ -261,7 +280,7 @@ function ObservationFormModal({ visible, onClose, onSaved }: { visible: boolean;
             title={submitting ? t('profiles.common.saving') : t('monitoring.form.save')}
             onPress={handleSave}
             loading={submitting}
-            disabled={!systolic || !diastolic}
+            disabled={!systolic || !diastolic || !temperature}
             style={modalStyles.saveButton}
           />
         </ScrollView>
@@ -359,7 +378,9 @@ const styles = StyleSheet.create({
   },
   title: { fontFamily: fontFamilyBold, fontSize: 24, color: colors.textPrimary, letterSpacing: -0.5 },
   addButton: {
-    width: 40, height: 40, borderRadius: radius.full, backgroundColor: colors.primary,
-    alignItems: 'center', justifyContent: 'center',
+    minHeight: 40, borderRadius: radius.full, backgroundColor: colors.primary,
+    alignItems: 'center', justifyContent: 'center', flexDirection: 'row',
+    gap: spacing.xs, paddingHorizontal: spacing.md,
   },
+  addButtonText: { fontFamily: fontFamilySemiBold, fontSize: 13, color: '#fff' },
 });

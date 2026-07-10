@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } 
 import { router, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
-import { Card, LoadingSpinner, PatientHeader, HealthSummaryCard, NextAppointmentCard, TodayMedicationsCard, LowStockCard, ActiveAlertsCard } from '../../src/shared/components';
+import { Card, LoadingSpinner, PatientHeader, HealthSummaryCard, NextAppointmentCard, TodayMedicationsCard, LowStockCard, ActiveAlertsCard, EmptyState } from '../../src/shared/components';
 import { appointmentsApi, medicationApi, healthApi, communicationApi } from '../../src/core/api/services';
 import { useAuthStore } from '../../src/core/auth/auth-store';
 import { profilesStore } from '../../src/core/storage/profiles-store';
@@ -32,10 +32,18 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [hasLinkedPatient, setHasLinkedPatient] = useState(Boolean(profilesStore.getLinkedPatientId()));
 
   const loadMetrics = useCallback(async () => {
     const patientId = profilesStore.getLinkedPatientId();
-    if (!patientId) { setLoading(false); setRefreshing(false); return; }
+    setHasLinkedPatient(Boolean(patientId));
+    if (!patientId) {
+      setMetrics([]);
+      setNotificationCount(0);
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
     try {
       const [appts, meds, obs, notifs] = await Promise.allSettled([
         appointmentsApi.get(`/appointments/patient/${patientId}`),
@@ -94,31 +102,44 @@ export default function DashboardPage() {
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} colors={[colors.primary]} />}
       >
-        {isPremium ? (
+        {!hasLinkedPatient ? (
+          <Card style={styles.setupCard}>
+            <EmptyState
+              icon="user-plus"
+              message={t('dashboard.noLinkedPatient')}
+              actionLabel={t('dashboard.linkPatient')}
+              onAction={() => router.push('/(family)/patient')}
+            />
+          </Card>
+        ) : (
           <>
-            <ActiveAlertsCard />
-            <HealthSummaryCard />
-          </>
-        ) : null}
-        <NextAppointmentCard />
-        <TodayMedicationsCard />
-        <LowStockCard />
+            {isPremium ? (
+              <>
+                <ActiveAlertsCard />
+                <HealthSummaryCard />
+              </>
+            ) : null}
+            <NextAppointmentCard />
+            <TodayMedicationsCard />
+            <LowStockCard />
 
-        <Text style={styles.sectionTitle}>{t('dashboard.quickAccess')}</Text>
-        <View style={styles.grid}>
-          {metrics.map((m) => (
-            <TouchableOpacity key={m.labelKey} style={styles.metricCard}
-              onPress={() => router.push(m.route as any)} activeOpacity={0.7}>
-              <Card style={styles.cardInner}>
-                <View style={[styles.iconCircle, { backgroundColor: m.bgColor }]}>
-                  <Feather name={m.icon} size={24} color={m.color} />
-                </View>
-                <Text style={[styles.metricValue, { color: m.color }]}>{m.value}</Text>
-                <Text style={styles.metricLabel}>{t(m.labelKey)}</Text>
-              </Card>
-            </TouchableOpacity>
-          ))}
-        </View>
+            <Text style={styles.sectionTitle}>{t('dashboard.quickAccess')}</Text>
+            <View style={styles.grid}>
+              {metrics.map((m) => (
+                <TouchableOpacity key={m.labelKey} style={styles.metricCard}
+                  onPress={() => router.push(m.route as any)} activeOpacity={0.7}>
+                  <Card style={styles.cardInner}>
+                    <View style={[styles.iconCircle, { backgroundColor: m.bgColor }]}>
+                      <Feather name={m.icon} size={24} color={m.color} />
+                    </View>
+                    <Text style={[styles.metricValue, { color: m.color }]}>{m.value}</Text>
+                    <Text style={styles.metricLabel}>{t(m.labelKey)}</Text>
+                  </Card>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        )}
       </ScrollView>
     </View>
   );
@@ -127,6 +148,7 @@ export default function DashboardPage() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: spacing.lg, paddingTop: spacing.md },
+  setupCard: { minHeight: 260, marginTop: spacing.md },
   sectionTitle: {
     fontFamily: fontFamilyBold, fontSize: 18, color: colors.textPrimary,
     letterSpacing: -0.3, marginBottom: spacing.md, marginTop: spacing.md,

@@ -6,7 +6,7 @@
       "username": "Usuario",
       "password": "Contraseña",
       "submit": "Iniciar sesión",
-      "submitting": "Ingresando …",
+      "submitting": "Ingresando &",
       "noAccount": "¿No tienes una cuenta?",
       "createAccount": "Crear una",
       "registeredSuccess": "Cuenta creada exitosamente. Inicia sesión.",
@@ -20,10 +20,10 @@
       "password": "Contraseña",
       "role": "Rol",
       "submit": "Registrarme",
-      "submitting": "Creando cuenta …",
+      "submitting": "Creando cuenta &",
       "hasAccount": "¿Ya tienes una cuenta?",
       "signIn": "Inicia sesión",
-      "roleHint": "Selecciona el tipo de cuenta con el que querés ingresar a la plataforma.",
+      "roleHint": "Selecciona el tipo de cuenta con el que quieres ingresar a la plataforma.",
       "placeholderUsername": "Elige un usuario",
       "placeholderPassword": "Elige una contraseña",
       "segments": {
@@ -112,7 +112,8 @@
       "noAvailable": "No encontramos médicos disponibles por el momento."
     },
     "common": {
-      "saving": "Guardando..."
+      "saving": "Guardando...",
+      "comingSoon": "Esta sección estará disponible próximamente."
     },
     "errors": {
       "createFailed": "No se pudo crear el perfil. Intenta nuevamente.",
@@ -132,7 +133,9 @@
     "quickAccess": "Accesos rápidos",
     "nextAppointment": "Próxima cita",
     "noUpcomingAppointments": "No hay próximas citas programadas",
-    "viewAll": "Ver todos"
+    "viewAll": "Ver todos",
+    "noLinkedPatient": "Vincula primero a tu familiar para ver sus citas, medicación y alertas reales.",
+    "linkPatient": "Vincular paciente"
   },
   "appointments": {
     "title": "Citas",
@@ -202,7 +205,11 @@
     "selectMedication": "Selecciona un medicamento para ver su historial.",
     "dosage": "Dosis",
     "route": "Vía",
-    "stock": "Stock",
+    "stock": {
+      "title": "Actualizar stock",
+      "current": "Stock actual",
+      "new": "Nuevo stock"
+    },
     "lowStock": "Stock bajo",
     "expires": "Vence",
     "form": {
@@ -213,7 +220,8 @@
       "route": "Vía de administración",
       "stock": "Stock actual",
       "threshold": "Umbral de stock bajo",
-      "expiration": "Fecha de vencimiento"
+      "expiration": "Fecha de vencimiento",
+      "shortAction": "Medicamento"
     },
     "unit": {
       "MG": "mg",
@@ -274,11 +282,6 @@
       "reason": "Motivo",
       "reasonPlaceholder": "Explica por qué se omitió la dosis",
       "confirm": "Confirmar omisión"
-    },
-    "stock": {
-      "title": "Actualizar stock",
-      "current": "Stock actual",
-      "new": "Nuevo stock"
     }
   },
   "monitoring": {
@@ -325,15 +328,16 @@
       "notes": "Notas",
       "clinicalNotes": "Notas clínicas",
       "clinicalNotesPlaceholder": "Observaciones relevantes para la familia",
-      "save": "Guardar observación"
+      "save": "Guardar observación",
+      "shortAction": "Observación"
     },
     "emotional": {
       "CALM": "Calma",
       "ANXIOUS": "Ansiosa",
-      "STABLE": "Estable",
       "SAD": "Triste",
-      "AGITATED": "Agitada",
-      "HAPPY": "Contenta"
+      "IRRITABLE": "Irritable",
+      "CONFUSED": "Confundida",
+      "APATHETIC": "Apática"
     }
   },
   "messages": {
@@ -423,7 +427,7 @@
     "subscriptionStatus": "Estado de Suscripción",
     "subscriptionStatusDesc": "Ver plan y detalles",
     "invoices": "Historial de Facturas",
-    "invoicesDesc": "Ver facturas y pagos",
+    "invoicesDesc": "Ver facturas y pagos registrados",
     "preferences": "Preferencias",
     "language": "Idioma",
     "languageDesc": "Español / English",
@@ -527,7 +531,7 @@
     },
     "step4": {
       "title": "Asignar Doctor (opcional)",
-      "description": "Agrega al médico tratante cuando esté disponible"
+      "description": "Agrega al médico tratante cuando está disponible"
     }
   },
   "common": {
